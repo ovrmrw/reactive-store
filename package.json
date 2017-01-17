@@ -15,6 +15,17 @@
     "RxJS",
     "TypeScript"
   ],
+  "files": [
+    "README.md",
+    "LICENSE",
+    "index.js",
+    "index.d.ts",
+    "src",
+    "dist",
+    "__test__",
+    "package.json",
+    "tsconfig.json"
+  ],
   "author": "Tomohiro Noguchi @ovrmrw",
   "license": "MIT",
   "devDependencies": {
