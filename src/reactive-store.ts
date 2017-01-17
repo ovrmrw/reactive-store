@@ -8,7 +8,7 @@ import './add/operator/all'
 export const latestUpdatedKey = '__latest__'
 
 
-export class SimpleStore<T> {
+export class ReactiveStore<T> {
   private simpleStore$ = new Subject<Action>()
   private provider$: BehaviorSubject<T | RecursiveReadonly<T>>
 

@@ -1,6 +1,6 @@
 import { Observable, Subscriber, Operator } from 'rxjs'
 
-import { latestUpdatedKey } from '../simple-store'
+import { latestUpdatedKey } from '../reactive-store'
 
 
 export function filterByUpdatedKey<T>(this: Observable<T>, ...keys: string[]): Observable<T> {

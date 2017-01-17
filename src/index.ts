@@ -1,3 +1,3 @@
 export * from './actions'
-export { SimpleStore } from './simple-store'
+export { ReactiveStore } from './reactive-store'
 export { mergeObject, getObjectKeys, ObjectKeys, ObjectKey, RecursiveReadonly } from './common'

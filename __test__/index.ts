@@ -1,7 +1,7 @@
 import * as assert from 'assert'
 import { Observable } from 'rxjs'
 
-import { SimpleStore, getObjectKeys } from '../src'
+import { ReactiveStore, getObjectKeys } from '../index'
 
 
 interface AppState {
@@ -18,7 +18,7 @@ const initialState: AppState = {
 
 const KEY = getObjectKeys(initialState)
 
-const store = new SimpleStore<AppState>(initialState)
+const store = new ReactiveStore<AppState>(initialState)
 
 
 

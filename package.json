@@ -1,14 +1,13 @@
 {
   "name": "ovrmrw-reactive-store",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "",
   "main": "index.js",
   "scripts": {
     "tsc": "tsc --outDir .dest",
     "prebuild": "rimraf dist",
     "build": "tsc --outDir dist",
-    "start": "nodemon server.ts --exec ts-node",
-    "prepublish": "npm test && npm run build",
+    "prepublish": "npm run build && npm test",
     "test": "ts-node __test__"
   },
   "keywords": [
@@ -20,7 +19,6 @@
     "LICENSE",
     "index.js",
     "index.d.ts",
-    "src",
     "dist",
     "__test__",
     "package.json",
@@ -43,7 +41,7 @@
   },
   "dependencies": {
     "asap": "^2.0.5",
-    "rxjs": "^5.0.3",
+    "rxjs": "^5.0.0",
     "tslib": "^1.5.0"
   }
 }
