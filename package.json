@@ -27,6 +27,10 @@
     "tsconfig.json"
   ],
   "author": "Tomohiro Noguchi @ovrmrw",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ovrmrw/reactive-store"
+  },
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^6.0.40",
