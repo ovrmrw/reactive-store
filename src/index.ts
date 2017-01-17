@@ -1,4 +1,4 @@
 export * from './actions'
 export { ReactiveStore } from './reactive-store'
 export { mergeObject, getObjectKeys, ObjectKeys, ObjectKey, RecursiveReadonly } from './common'
-export { getStoreAsSingleton } from './singleton'
+export { getReactiveStoreAsSingleton } from './singleton'
