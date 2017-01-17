@@ -1,0 +1,34 @@
+{
+  "name": "ovrmrw-reactive-store",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "tsc": "tsc --outDir .dest",
+    "prebuild": "rimraf dist",
+    "build": "tsc --outDir dist",
+    "start": "nodemon server.ts --exec ts-node",
+    "prepublish": "npm test && npm run build",
+    "test": "ts-node __test__"
+  },
+  "keywords": [
+    "RxJS",
+    "TypeScript"
+  ],
+  "author": "Tomohiro Noguchi @ovrmrw",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^6.0.40",
+    "concurrently": "^2.2.0",
+    "nodemon": "^1.11.0",
+    "rimraf": "^2.5.4",
+    "ts-node": "^2.0.0",
+    "tslint": "^4.3.1",
+    "typescript": "^2.1.5"
+  },
+  "dependencies": {
+    "asap": "^2.0.5",
+    "rxjs": "^5.0.3",
+    "tslib": "^1.5.0"
+  }
+}
