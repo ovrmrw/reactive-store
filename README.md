@@ -1,5 +1,11 @@
 # reactive-store
-Reactive Store by @ovrmrw
+Most Simple Reactive Store using RxJS by @ovrmrw
+
+---
+
+(!) TypeScript 2.1 or later is needed.
+
+Usage: [__test__/index.ts](https://github.com/ovrmrw/reactive-store/blob/master/__test__/index.ts)
 
 ---
 
@@ -10,12 +16,7 @@ or
 $ npm install
 ```
 
-## Run (ts files directly)
+## Test
 ```
-$ npm start
-```
-
-## Build JS files
-```
-$ npm run build
+$ npm test
 ```
