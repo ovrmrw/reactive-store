@@ -1,6 +1,6 @@
 {
   "name": "ovrmrw-reactive-store",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -40,8 +40,11 @@
     "typescript": "^2.1.5"
   },
   "dependencies": {
-    "asap": "^2.0.5",
+    "asap": "^2.0.0",
     "rxjs": "^5.0.0",
     "tslib": "^1.5.0"
+  },
+  "peerDependencies": {
+    "typescript": "^2.1.4"
   }
 }

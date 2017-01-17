@@ -1,7 +1,7 @@
 import * as assert from 'assert'
 import { Observable } from 'rxjs'
 
-import { ReactiveStore, getObjectKeys } from '../index'
+import { getRectiveStoreAsSingleton, getObjectKeys } from '../index'
 
 
 interface AppState {
@@ -16,9 +16,9 @@ const initialState: AppState = {
   }
 }
 
-const KEY = getObjectKeys(initialState)
+const store = getRectiveStoreAsSingleton(initialState)
 
-const store = new ReactiveStore<AppState>(initialState)
+const KEY = getObjectKeys(initialState)
 
 
 
