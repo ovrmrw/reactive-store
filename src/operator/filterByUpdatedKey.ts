@@ -17,9 +17,6 @@ class FilterByUpdatedKeyOperator<T> implements Operator<T, T> {
 }
 
 
-/**
- * 指定したkeyがvalue[latestUpdatedKey]に一致するか、value[latestUpdatedKey])が存在しないときにtrueを返す。
- */
 class FilterByUpdatedKeySubscriber<T> extends Subscriber<T> {
   constructor(destination: Subscriber<T>, private keys: string[]) {
     super(destination)

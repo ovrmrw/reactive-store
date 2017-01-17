@@ -26,7 +26,7 @@ export class ReactiveStore<T> {
   private createStore(): void {
     const queue$ =
       this.simpleStore$
-        .concatMap(action => { // 外側のコールバックを解決させる。
+        .concatMap(action => { // resolve outer callback.
           if (action.value instanceof Function) {
             return this.getterAsPromise()
               .then(state => {
@@ -37,7 +37,7 @@ export class ReactiveStore<T> {
             return Promise.resolve(action)
           }
         })
-        .mergeMap(action => { // 非同期を解決させる。
+        .mergeMap(action => { // resolve async.
           if (action.value instanceof Promise || action.value instanceof Observable) {
             return Observable.from(action.value)
               .mergeMap(value => Observable.of(Object.assign(action, { value })))
@@ -50,12 +50,12 @@ export class ReactiveStore<T> {
       queue$
         .scan((state, action) => {
           let temp: any
-          if (action.value instanceof Function) { // 内側のコールバックを解決させる。
+          if (action.value instanceof Function) { // resolve inner callback.
             temp = action.value.call(null, state[action.key])
           } else {
             temp = action.value
           }
-          if (temp instanceof Object && !(temp instanceof Array)) { // valueがオブジェクトの場合はmergeする。
+          if (temp instanceof Object && !(temp instanceof Array)) { // merge if value is Object.
             state[action.key] = { ...state[action.key], ...temp }
           } else {
             state[action.key] = temp
@@ -87,26 +87,26 @@ export class ReactiveStore<T> {
   }
 
 
-  setter<K extends keyof T>(key: K, value: ValueOrResolver<T, K>): Promise<T> { // TをRecursiveReadonly<T>にするとプロパティ名の一斉リネームが出来なくなる。
+  setter<K extends keyof T>(key: K, value: ValueOrResolver<T, K>): Promise<T> {
     const subject = new Subject<T | RecursiveReadonly<T>>()
     this.simpleStore$.next({ key, value, subject })
     return subject.take(1).toPromise()
   }
 
 
-  setterPartial<K extends keyof T>(key: K, value: PartialValueOrResolver<T, K>): Promise<T> { // TをRecursiveReadonly<T>にするとプロパティ名の一斉リネームが出来なくなる。
+  setterPartial<K extends keyof T>(key: K, value: PartialValueOrResolver<T, K>): Promise<T> {
     const subject = new Subject<T | RecursiveReadonly<T>>()
     this.simpleStore$.next({ key, value, subject })
     return subject.take(1).toPromise()
   }
 
 
-  getter(): Observable<T> { // TをRecursiveReadonly<T>にするとプロパティ名の一斉リネームが出来なくなる。
+  getter(): Observable<T> {
     return this.provider$
   }
 
 
-  getterAsPromise(): Promise<T> { // TをRecursiveReadonly<T>にするとプロパティ名の一斉リネームが出来なくなる。
+  getterAsPromise(): Promise<T> {
     return this.provider$.take(1).toPromise()
   }
 
