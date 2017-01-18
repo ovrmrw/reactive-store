@@ -18,7 +18,7 @@ export class ReactiveStore<T> {
   constructor(
     private initialState: T,
     private concurrent: number = 1,
-    private loopType: number = LoopType.setimmediate,
+    private loopType: number = LoopType.asap,
     private output: boolean = false,
   ) {
     this.provider$ = new BehaviorSubject<T>(initialState || {} as T)
@@ -71,10 +71,14 @@ export class ReactiveStore<T> {
             asap(() => {
               action.subject.next(newState)
             })
-          } else {
+          } else if (this.loopType === LoopType.setimmediate) {
             setImmediate(() => {
               action.subject.next(newState)
             })
+          } else {
+            setTimeout(() => {
+              action.subject.next(newState)
+            }, 0)
           }
           return newState
         }, this.initialState as T)

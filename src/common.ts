@@ -66,6 +66,7 @@ export type RecursiveReadonly<T> = {
 
 
 export enum LoopType {
+  'asap',
   'setimmediate',
-  'asap'
+  'settimeout',
 }
