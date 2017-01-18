@@ -1,4 +1,6 @@
+require('setimmediate')
 const asap = require('asap') as (func: Function) => void
+
 import { Observable, Subject, BehaviorSubject } from 'rxjs'
 
 import { Action, ValueOrResolver, PartialValueOrResolver, RecursiveReadonly } from './common'
@@ -17,6 +19,7 @@ export class ReactiveStore<T> {
     private initialState: T,
     private concurrent: number = 1,
     private output: boolean = false,
+    private loopType: string = '',
   ) {
     this.provider$ = new BehaviorSubject<T>(initialState || {} as T)
     this.createStore()
@@ -63,9 +66,16 @@ export class ReactiveStore<T> {
           }
           state[latestUpdatedKey] = action.key
           const newState = Object.assign({}, state)
-          asap(() => {
-            action.subject.next(newState)
-          })
+
+          if (this.loopType.toLowerCase() === 'asap') {
+            asap(() => {
+              action.subject.next(newState)
+            })
+          } else {
+            setImmediate(() => {
+              action.subject.next(newState)
+            })
+          }
           return newState
         }, this.initialState as T)
 

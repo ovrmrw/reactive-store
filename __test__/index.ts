@@ -18,7 +18,7 @@ const initialState: AppState = {
   timestamp: 0,
 }
 
-const store = getReactiveStoreAsSingleton(initialState, 1, true) // concurrent: 1, output: true
+const store = getReactiveStoreAsSingleton(initialState, { concurrent: 1, output: true, loopType: 'setimmediate' })
 
 const KEY = getObjectKeys(initialState)
 
@@ -68,7 +68,7 @@ store.setter(KEY.increment, (p) => ({ counter: p.counter - 1 }))
   .then(() => store.setter(KEY.timestamp, new Date().getTime()))
 
 
-setImmediate(() => {
+setTimeout(() => {
   assert(value === 0)
-  assert(timestamp > 0)
-})
+  assert(typeof timestamp === 'number' && timestamp > 0)
+}, 1000)
