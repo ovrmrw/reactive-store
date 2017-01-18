@@ -9,7 +9,7 @@ export const latestUpdatedKey = '__latest__'
 
 
 export class ReactiveStore<T> {
-  private simpleStore$ = new Subject<Action>()
+  private dispatcher$ = new Subject<Action>()
   private provider$: BehaviorSubject<T | RecursiveReadonly<T>>
 
 
@@ -26,7 +26,7 @@ export class ReactiveStore<T> {
 
   private createStore(): void {
     const queue$ =
-      this.simpleStore$
+      this.dispatcher$
         .concatMap(action => { // resolve outer callback.
           if (action.value instanceof Function) {
             return this.getterAsPromise()
@@ -92,7 +92,7 @@ export class ReactiveStore<T> {
 
   setter<K extends keyof T>(key: K, value: ValueOrResolver<T, K>): Promise<void> {
     const subject = new Subject<T | RecursiveReadonly<T>>()
-    this.simpleStore$.next({ key, value, subject })
+    this.dispatcher$.next({ key, value, subject })
     return subject.take(1)
       .mapTo(void 0) // experimental
       .toPromise()
@@ -101,7 +101,7 @@ export class ReactiveStore<T> {
 
   setterPartial<K extends keyof T>(key: K, value: PartialValueOrResolver<T, K>): Promise<void> {
     const subject = new Subject<T | RecursiveReadonly<T>>()
-    this.simpleStore$.next({ key, value, subject })
+    this.dispatcher$.next({ key, value, subject })
     return subject.take(1)
       .mapTo(void 0) // experimental
       .toPromise()

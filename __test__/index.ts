@@ -18,7 +18,7 @@ const initialState: AppState = {
   timestamp: 0,
 }
 
-const store = getReactiveStoreAsSingleton(initialState, 1, true)
+const store = getReactiveStoreAsSingleton(initialState, 1, true) // concurrent: 1, output: true
 
 const KEY = getObjectKeys(initialState)
 
@@ -43,9 +43,6 @@ store.getter()
   })
 
 
-store.setter(KEY.timestamp, new Date().getTime())
-
-
 store.setter(KEY.increment, (p) => ({ counter: p.counter + 1 }))
   .then(() => store.setter(KEY.increment, () => (q) => ({ counter: q.counter + 1 })))
   .then(() => store.setter(KEY.increment, Promise.resolve((p) => ({ counter: p.counter + 1 }))))
@@ -68,9 +65,10 @@ store.setter(KEY.increment, (p) => ({ counter: p.counter - 1 }))
   .then(() => store.setter(KEY.increment, () => Observable.of((q) => ({ counter: q.counter - 1 }))))
   .then(() => store.setter(KEY.increment, (_, a) => ({ counter: a.increment.counter - 1 })))
   .then(() => store.setter(KEY.increment, (_, a) => (_, b) => ({ counter: b.increment.counter - 1 })))
+  .then(() => store.setter(KEY.timestamp, new Date().getTime()))
 
 
-setTimeout(() => {
-  assert.equal(value, 0)
-  assert.notEqual(timestamp, void 0)
-}, 0)
+setImmediate(() => {
+  assert(value === 0)
+  assert(timestamp > 0)
+})
