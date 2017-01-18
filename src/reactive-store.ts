@@ -3,7 +3,7 @@ const asap = require('asap') as (func: Function) => void
 
 import { Observable, Subject, BehaviorSubject } from 'rxjs'
 
-import { Action, ValueOrResolver, PartialValueOrResolver, RecursiveReadonly } from './common'
+import { Action, ValueOrResolver, PartialValueOrResolver, RecursiveReadonly, LoopType } from './common'
 
 import './add/operator/all'
 
@@ -18,8 +18,8 @@ export class ReactiveStore<T> {
   constructor(
     private initialState: T,
     private concurrent: number = 1,
+    private loopType: number = LoopType.setimmediate,
     private output: boolean = false,
-    private loopType: string = '',
   ) {
     this.provider$ = new BehaviorSubject<T>(initialState || {} as T)
     this.createStore()
@@ -67,7 +67,7 @@ export class ReactiveStore<T> {
           state[latestUpdatedKey] = action.key
           const newState = Object.assign({}, state)
 
-          if (this.loopType.toLowerCase() === 'asap') {
+          if (this.loopType === LoopType.asap) {
             asap(() => {
               action.subject.next(newState)
             })

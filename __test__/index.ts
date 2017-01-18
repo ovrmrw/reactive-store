@@ -1,7 +1,7 @@
 import * as assert from 'assert'
 import { Observable } from 'rxjs'
 
-import { getReactiveStoreAsSingleton, getObjectKeys } from '../index'
+import { getReactiveStoreAsSingleton, getObjectKeys, LoopType } from '../src'
 
 
 interface AppState {
@@ -18,10 +18,13 @@ const initialState: AppState = {
   timestamp: 0,
 }
 
-const store = getReactiveStoreAsSingleton(initialState, { concurrent: 1, output: true, loopType: 'setimmediate' })
-
 const KEY = getObjectKeys(initialState)
 
+const store = getReactiveStoreAsSingleton(initialState, {
+  concurrent: 1,
+  output: true,
+  loopType: LoopType.setimmediate
+})
 
 
 let value: number | undefined
@@ -71,4 +74,4 @@ store.setter(KEY.increment, (p) => ({ counter: p.counter - 1 }))
 setTimeout(() => {
   assert(value === 0)
   assert(typeof timestamp === 'number' && timestamp > 0)
-}, 1000)
+}, 100)
