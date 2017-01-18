@@ -15,7 +15,8 @@ export class ReactiveStore<T> {
 
   constructor(
     private initialState: T,
-    private concurrent?: number,
+    private concurrent: number = 1,
+    private output: boolean = false,
   ) {
     this.provider$ = new BehaviorSubject<T>(initialState || {} as T)
     this.createStore()
@@ -30,7 +31,7 @@ export class ReactiveStore<T> {
           if (action.value instanceof Function) {
             return this.getterAsPromise()
               .then(state => {
-                action.value = action.value.call(null, state[action.key])
+                action.value = action.value.call(null, state[action.key], state)
                 return action
               })
           } else {
@@ -51,7 +52,7 @@ export class ReactiveStore<T> {
         .scan((state, action) => {
           let temp: any
           if (action.value instanceof Function) { // resolve inner callback.
-            temp = action.value.call(null, state[action.key])
+            temp = action.value.call(null, state[action.key], state)
           } else {
             temp = action.value
           }
@@ -70,7 +71,9 @@ export class ReactiveStore<T> {
 
     reduced$
       .subscribe(newState => {
-        console.log('newState:', newState)
+        if (this.output) {
+          console.log('newState:', newState)
+        }
         this.provider$.next(newState)
         this.effectAfterReduced(newState)
       })
@@ -87,17 +90,21 @@ export class ReactiveStore<T> {
   }
 
 
-  setter<K extends keyof T>(key: K, value: ValueOrResolver<T, K>): Promise<T> {
+  setter<K extends keyof T>(key: K, value: ValueOrResolver<T, K>): Promise<void> {
     const subject = new Subject<T | RecursiveReadonly<T>>()
     this.simpleStore$.next({ key, value, subject })
-    return subject.take(1).toPromise()
+    return subject.take(1)
+      .mapTo(void 0) // experimental
+      .toPromise()
   }
 
 
-  setterPartial<K extends keyof T>(key: K, value: PartialValueOrResolver<T, K>): Promise<T> {
+  setterPartial<K extends keyof T>(key: K, value: PartialValueOrResolver<T, K>): Promise<void> {
     const subject = new Subject<T | RecursiveReadonly<T>>()
     this.simpleStore$.next({ key, value, subject })
-    return subject.take(1).toPromise()
+    return subject.take(1)
+      .mapTo(void 0) // experimental
+      .toPromise()
   }
 
 
