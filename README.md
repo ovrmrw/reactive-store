@@ -16,7 +16,9 @@ $ yarn add ovrmrw-reactive-store
 
 Usage: [\_\_test\_\_/index.ts](https://github.com/ovrmrw/reactive-store/blob/master/__test__/index.ts)
 
-Example React Project: [ovrmrw/my-first-react-typescript](https://github.com/ovrmrw/my-first-react-typescript)
+Example React app: [ovrmrw/my-first-react-typescript](https://github.com/ovrmrw/my-first-react-typescript)
+
+Example Angular app: [ovrmrw/angular-simple-redux-starter](https://github.com/ovrmrw/angular-simple-redux-starter)
 
 ---
 
