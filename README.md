@@ -1,9 +1,8 @@
-# reactive-store
-Most Simple Reactive Store using RxJS by @ovrmrw
-
----
+# ovrmrw-reactive-store
 
 **(!) TypeScript 2.1 or later is needed.**
+
+Simple key-value store like Flux concept for frond-end apps.
 
 ## Install from npm
 ```
@@ -48,7 +47,7 @@ const initialState: AppState = {
 }
 ```
 
-Generate an object for ObjectKeys. The first layer keys of `initialState` will be string literals of `KEY`.
+Generate an object for ObjectKeys by `getObjectKeys` method. The first layer keys of `initialState` will be string literals of `KEY`.
 
 ```
 const KEY = getObjectKeys(initialState)
@@ -63,9 +62,71 @@ const KEY = {
 }
 ```
 
+Generate a store instance by `getReactiveStoreAsSingleton` method with `initialState` and some options.
 
+```
+const store = getReactiveStoreAsSingleton(initialState, {
+  concurrent: 1,
+  output: true,
+  loopType: LoopType.asap
+})
+```
 
+Set a value to the states.
 
+```
+store.setter(KEY.increment, (p) => ({counter: p.counter + 1}))
+
+/* The variable "p" is a part of the state of AppState that indicates IncrementState under the "increment" key. */
+```
+
+`setter` is **chainable**.
+
+```
+store.setter(KEY.increment, (p) => ({counter: p.counter + 1}))
+  .then(() => store.setter(KEY.timestamp, new Date().getTime()))
+
+/* The second setter is invoked after the first setter resolved. */
+```
+
+**Async function** is acceptable.
+
+```
+store.setter(KEY.increment, (p) => Promise.resolved(({counter: p.counter + 1})))
+
+store.setter(KEY.increment, (p) => Promise.resolved((q) => ({counter: q.counter + 1})))
+
+store.setter(KEY.increment, Promise.resolved(({counter: 1})))
+
+store.setter(KEY.increment, Promise.resolved((p) => ({counter: p.counter + 1})))
+```
+
+You can also get **all of the state** instead of a part of the state.
+
+```
+store.setter(KEY.increment, (_, a) => ({counter: a.increment.counter + 1})))
+
+/* The variable "a" is all of the state. */
+```
+
+Get your states. The type of `getter()` is `Observable<AppState>`.
+
+```
+store.getter()
+  .subscribe(state => {
+    value = state.increment.counter
+  })
+```
+
+To get more controll, filter the streams by `filterByUpdatedKey` operator.
+
+```
+store.getter()
+  .filterByUpdatedKey(KEY.timestamp) // pass when "timestamp" key is updated.
+  .subscribe(state => {
+    value = state.timestamp
+  })
+```
 
 ---
 
