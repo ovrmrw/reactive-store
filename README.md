@@ -22,6 +22,53 @@ Example Angular app: [ovrmrw/angular-simple-redux-starter](https://github.com/ov
 
 ---
 
+## Usage detail
+
+Declare `interface` for the States.
+
+```
+interface AppState {
+  increment: IncrementState,
+  timestamp: number,
+}
+
+interface IncrementState {
+  counter: number,
+}
+```
+
+Create `initialState` using interfaces above.
+
+```
+const initialState: AppState = {
+  increment: {
+    counter: 0
+  },
+  timestamp: 0,
+}
+```
+
+Generate an object for ObjectKeys. The first layer keys of `initialState` will be string literals of `KEY`.
+
+```
+const KEY = getObjectKeys(initialState)
+```
+
+Above code is equivalent to
+
+```
+const KEY = {
+  increment: 'increment',
+  timestamp: 'timestamp'
+}
+```
+
+
+
+
+
+---
+
 ## Setup
 ```
 $ yarn install

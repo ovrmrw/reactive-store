@@ -5,10 +5,12 @@ import { getReactiveStoreAsSingleton, getObjectKeys, LoopType } from '../src'
 
 
 interface AppState {
-  increment: {
-    counter: number
-  },
+  increment: IncrementState,
   timestamp: number,
+}
+
+interface IncrementState {
+  counter: number,
 }
 
 const initialState: AppState = {
@@ -74,4 +76,5 @@ store.setter(KEY.increment, (p) => ({ counter: p.counter - 1 }))
 setImmediate(() => {
   assert(value === 0)
   assert(typeof timestamp === 'number' && timestamp > 0)
+  console.log('[passed all the tests.]')
 })
