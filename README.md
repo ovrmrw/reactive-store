@@ -9,7 +9,7 @@ Simple key-value store like Flux concept for frond-end apps.
 
 Flux and Redux are of course good ideas.
 
-But writting Actions, ActionCreators and Reducers for small apps is painful.
+But writing Actions, ActionCreators and Reducers for small apps is exaggerated and painful.
 
 That is why that I wrote a Simple Store.
 
