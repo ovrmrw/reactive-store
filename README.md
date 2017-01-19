@@ -1,9 +1,23 @@
 # ovrmrw-reactive-store
 Most Simple Reactive Store using RxJS by @ovrmrw
 
+---
+
 **(!) TypeScript 2.1 or later is needed.**
 
 Simple key-value store like Flux concept for frond-end apps.
+
+Flux and Redux are of course good ideas.
+
+But writting Actions, ActionCreators and Reducers for small apps is painful.
+
+That is why that I wrote a Simple Store.
+
+In web apps world, we have to consider all events as async, so Reactive Concept is best match to that.
+
+To handle **states, time flow and events** easily, Simple Reactive Store (using RxJS) was born.
+
+---
 
 ## Install from npm
 ```
