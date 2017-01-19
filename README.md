@@ -1,4 +1,5 @@
 # ovrmrw-reactive-store
+Most Simple Reactive Store using RxJS by @ovrmrw
 
 **(!) TypeScript 2.1 or later is needed.**
 
