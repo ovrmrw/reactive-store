@@ -90,7 +90,7 @@ export class ReactiveStore<T> {
           } else {
             setTimeout(() => {
               action.subject.next(newState)
-            }, 0)
+            })
           }
 
           return newState
@@ -151,6 +151,14 @@ export class ReactiveStore<T> {
 
   getterAsPromise(): Promise<T> {
     return this.provider$.take(1).toPromise()
+  }
+
+
+  forceReset(): void {
+    Object.keys(this.initialState)
+      .forEach((key: keyof T) => {
+        this.setter(key, this.initialState[key])
+      })
   }
 
 }
