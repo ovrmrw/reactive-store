@@ -155,6 +155,7 @@ export class ReactiveStore<T> {
 
 
   forceReset(): void {
+    console.info('***** FORCE RESET STORE *****')
     Object.keys(this.initialState)
       .forEach((key: keyof T) => {
         this.setter(key, this.initialState[key])
