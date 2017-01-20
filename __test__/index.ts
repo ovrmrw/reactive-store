@@ -31,7 +31,6 @@ Zone.current.fork({}).run(() => {
     concurrent: 1,
     output: true,
     loopType: LoopType.asap,
-    ngZone: null,
   })
 
 
