@@ -28,9 +28,9 @@ Zone.current.fork({}).run(() => {
   const KEY = getObjectKeys(initialState)
 
   const store = getReactiveStoreAsSingleton(initialState, {
-    concurrent: 1,
-    output: true,
-    loopType: LoopType.asap,
+    concurrent: 1, // DEFAULT: 1
+    output: true, // DEFAULT: false
+    loopType: LoopType.asap, // DEFAULT: LoopType.asap
   })
 
 

@@ -62,6 +62,7 @@ export class ReactiveStore<T> {
           }
         }, this.concurrent)
 
+
     const reduced$ =
       queue$
         .scan((state, action) => {
@@ -71,12 +72,14 @@ export class ReactiveStore<T> {
           } else {
             temp = action.value
           }
+
           if (temp instanceof Object && !(temp instanceof Array)) { // merge if value is Object.
             state[action.key] = { ...state[action.key], ...temp }
           } else {
             state[action.key] = temp
           }
           state[latestUpdatedKey] = action.key
+
           const newState = Object.assign({}, state)
 
           if (this.loopType === LoopType.asap) {
@@ -92,14 +95,17 @@ export class ReactiveStore<T> {
               action.subject.next(newState)
             }, 0)
           }
+
           return newState
         }, this.initialState as T)
+
 
     reduced$
       .subscribe(newState => {
         if (this.output) {
           console.log('newState:', newState)
         }
+
         if (this.ngZone) {
           this.ngZone.run(() => {
             this.provider$.next(newState)
@@ -107,6 +113,7 @@ export class ReactiveStore<T> {
         } else {
           this.provider$.next(newState)
         }
+
         this.effectAfterReduced(newState)
       })
   }
