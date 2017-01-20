@@ -30,7 +30,8 @@ Zone.current.fork({}).run(() => {
   const store = getReactiveStoreAsSingleton(initialState, {
     concurrent: 1,
     output: true,
-    loopType: LoopType.asap
+    loopType: LoopType.asap,
+    ngZone: null,
   })
 
 

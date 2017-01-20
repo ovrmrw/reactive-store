@@ -70,3 +70,11 @@ export enum LoopType {
   'setimmediate',
   'settimeout',
 }
+
+
+export interface StoreOptions {
+  concurrent?: number,
+  output?: boolean,
+  loopType?: number,
+  ngZone?: any, // NgZone for Angular 2+
+}
