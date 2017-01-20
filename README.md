@@ -81,9 +81,9 @@ Generate a store instance by `getReactiveStoreAsSingleton` method with `initialS
 
 ```
 const store = getReactiveStoreAsSingleton(initialState, {
-  concurrent: 1,
-  output: true,
-  loopType: LoopType.asap
+  concurrent: 1, // DEFAULT: 1 ... concurrent number of async processes.
+  output: true, // DEFAULT: false ... whether to output states logs.
+  loopType: LoopType.asap // DEFAULT: LoopType.asap
 })
 ```
 

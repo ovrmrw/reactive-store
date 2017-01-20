@@ -23,9 +23,6 @@ export class ReactiveStore<T> {
   constructor(
     private initialState: T,
     private options?: StoreOptions,
-    // private concurrent: number = 1,
-    // private loopType: number = LoopType.asap,
-    // private output: boolean = false,
   ) {
     const o = options || {}
     this.concurrent = o.concurrent || 1
@@ -107,7 +104,7 @@ export class ReactiveStore<T> {
         }
 
         if (this.ngZone) {
-          this.ngZone.run(() => {
+          this.ngZone.run(() => { // for Angular 2+
             this.provider$.next(newState)
           })
         } else {
