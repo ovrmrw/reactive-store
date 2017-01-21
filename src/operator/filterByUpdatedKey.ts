@@ -3,6 +3,9 @@ import { Observable, Subscriber, Operator } from 'rxjs'
 import { latestUpdatedKey } from '../reactive-store'
 
 
+/**
+ * Filter streams by the current updated key.
+ */
 export function filterByUpdatedKey<T>(this: Observable<T>, ...keys: string[]): Observable<T> {
   return this.lift(new FilterByUpdatedKeyOperator(keys))
 }

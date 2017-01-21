@@ -77,4 +77,5 @@ export interface StoreOptions {
   output?: boolean,
   loopType?: number,
   ngZone?: any, // NgZone for Angular 2+
+  testing?: boolean,
 }

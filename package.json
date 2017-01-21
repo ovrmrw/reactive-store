@@ -1,6 +1,6 @@
 {
   "name": "ovrmrw-reactive-store",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -31,6 +31,7 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@types/lodash.clonedeep": "^4.5.0",
     "@types/node": "^6.0.40",
     "concurrently": "^2.2.0",
     "nodemon": "^1.11.0",
@@ -42,6 +43,7 @@
   },
   "dependencies": {
     "asap": "^2.0.5",
+    "lodash.clonedeep": "^4.5.0",
     "rxjs": "^5.0.3",
     "setimmediate": "^1.0.5"
   },

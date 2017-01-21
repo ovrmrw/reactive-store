@@ -1,5 +1,6 @@
 require('setimmediate')
 const asap = require('asap') as (func: Function) => void
+const cloneDeep = require('lodash.clonedeep')
 
 import { Observable, Subject, BehaviorSubject } from 'rxjs'
 
@@ -18,6 +19,9 @@ export class ReactiveStore<T> {
   private loopType: number
   private output: boolean
   private ngZone: any // (NgZone | null) for Angular 2+
+  private testing: boolean
+
+  private freezedInitialState: Readonly<T>
 
 
   constructor(
@@ -29,8 +33,11 @@ export class ReactiveStore<T> {
     this.loopType = o.loopType || LoopType.asap
     this.output = o.output || false
     this.ngZone = o.ngZone && 'run' in o.ngZone ? o.ngZone : null
+    this.testing = o.testing || false
 
-    this.provider$ = new BehaviorSubject<T>(initialState || {} as T)
+    const obj = initialState || {}
+    this.freezedInitialState = cloneDeep(obj)
+    this.provider$ = new BehaviorSubject<T>(obj)
     this.createStore()
     this.applyEffectors()
   }
@@ -80,17 +87,11 @@ export class ReactiveStore<T> {
           const newState = Object.assign({}, state)
 
           if (this.loopType === LoopType.asap) {
-            asap(() => {
-              action.subject.next(newState)
-            })
+            asap(() => action.subject.next(newState))
           } else if (this.loopType === LoopType.setimmediate) {
-            setImmediate(() => {
-              action.subject.next(newState)
-            })
+            setImmediate(() => action.subject.next(newState))
           } else {
-            setTimeout(() => {
-              action.subject.next(newState)
-            })
+            setTimeout(() => action.subject.next(newState))
           }
 
           return newState
@@ -126,6 +127,9 @@ export class ReactiveStore<T> {
   }
 
 
+  /**
+   * Set a new value to the specified key.
+   */
   setter<K extends keyof T>(key: K, value: ValueOrResolver<T, K>): Promise<void> {
     const subject = new Subject<T | RecursiveReadonly<T>>()
     this.dispatcher$.next({ key, value, subject })
@@ -135,6 +139,9 @@ export class ReactiveStore<T> {
   }
 
 
+  /**
+   * Set a new partial value to the specified key. Partial value will be merged.
+   */
   setterPartial<K extends keyof T>(key: K, value: PartialValueOrResolver<T, K>): Promise<void> {
     const subject = new Subject<T | RecursiveReadonly<T>>()
     this.dispatcher$.next({ key, value, subject })
@@ -144,22 +151,52 @@ export class ReactiveStore<T> {
   }
 
 
+  /**
+   * Reset the value of the specified key.
+   */
+  reseter<K extends keyof T>(key: K): Promise<void> {
+    const subject = new Subject<T | RecursiveReadonly<T>>()
+    const value = this.freezedInitialState[key]
+    this.dispatcher$.next({ key, value, subject })
+    return subject.take(1)
+      .mapTo(void 0)
+      .toPromise()
+  }
+
+
+  /**
+   * Get all of the current state as Observable.
+   */
   getter(): Observable<T> {
     return this.provider$
   }
 
 
+  /**
+   * Get all of the current state as Promise.
+   */
   getterAsPromise(): Promise<T> {
     return this.provider$.take(1).toPromise()
   }
 
 
-  forceReset(): void {
-    console.info('***** FORCE RESET STORE *****')
-    Object.keys(this.initialState)
-      .forEach((key: keyof T) => {
-        this.setter(key, this.initialState[key])
-      })
+  /**
+   * Reset to the initial state just for testing.
+   */
+  resetAllStateForTesting(): Promise<void> {
+    if (this.testing) {
+      console.info('***** RESET ALL STATE FOR TESTING *****')
+      const promises = Object.keys(this.freezedInitialState)
+        .map((key: keyof T) => {
+          return this.reseter(key)
+        })
+      return Promise.all(promises)
+        .then(() => void 0)
+        .catch(err => { throw err })
+    } else {
+      console.log('resetForTesting is not invoked because testing option is not set to true.')
+      return Promise.resolve(void 0)
+    }
   }
 
 }
