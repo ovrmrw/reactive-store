@@ -1,4 +1,5 @@
 import { Observable, Subscriber, Operator } from 'rxjs'
+import { TeardownLogic } from 'rxjs/Subscription'
 
 import { latestUpdatedKey } from '../reactive-store'
 
@@ -14,7 +15,7 @@ export function filterByUpdatedKey<T>(this: Observable<T>, ...keys: string[]): O
 class FilterByUpdatedKeyOperator<T> implements Operator<T, T> {
   constructor(private keys: string[]) { }
 
-  call(subscriber: Subscriber<T>, source: any): any {
+  call(subscriber: Subscriber<T>, source: Observable<T>): TeardownLogic {
     return source.subscribe(new FilterByUpdatedKeySubscriber(subscriber, this.keys))
   }
 }
@@ -25,7 +26,7 @@ class FilterByUpdatedKeySubscriber<T> extends Subscriber<T> {
     super(destination)
   }
 
-  protected _next(value: T) {
+  protected _next(value: T): void {
     let result: boolean
     try {
       result = this.keys.some(key => key === value[latestUpdatedKey]) || !value[latestUpdatedKey]
