@@ -5,13 +5,14 @@ const cloneDeep = require('lodash.clonedeep')
 import { Observable, Subject, BehaviorSubject } from 'rxjs'
 
 import { Action, ValueOrResolver, PartialValueOrResolver, RecursiveReadonly, LoopType, StoreOptions } from './common'
+import { IReactiveStore } from './interfaces'
 
 import './add/operator/all'
 
 export const latestUpdatedKey = '__latest__'
 
 
-export class ReactiveStore<T> {
+export class ReactiveStore<T> implements IReactiveStore<T> {
   private dispatcher$ = new Subject<Action>()
   private provider$: BehaviorSubject<T | RecursiveReadonly<T>>
 
@@ -48,13 +49,13 @@ export class ReactiveStore<T> {
       this.dispatcher$
         .concatMap(action => { // resolve outer callback.
           if (action.value instanceof Function) {
-            return this.getterAsPromise()
-              .then(state => {
+            return this.getter().take(1)
+              .map(state => {
                 action.value = action.value.call(null, state[action.key], state)
                 return action
               })
           } else {
-            return Promise.resolve(action)
+            return Observable.of(action)
           }
         })
         .mergeMap(action => { // resolve async.
@@ -154,7 +155,7 @@ export class ReactiveStore<T> {
   /**
    * Reset the value of the specified key.
    */
-  reseter<K extends keyof T>(key: K): Promise<void> {
+  resetter<K extends keyof T>(key: K): Promise<void> {
     const subject = new Subject<T | RecursiveReadonly<T>>()
     const value = this.freezedInitialState[key]
     this.dispatcher$.next({ key, value, subject })
@@ -188,7 +189,7 @@ export class ReactiveStore<T> {
       console.info('***** RESET ALL STATE FOR TESTING *****')
       const promises = Object.keys(this.freezedInitialState)
         .map((key: keyof T) => {
-          return this.reseter(key)
+          return this.resetter(key)
         })
       return Promise.all(promises)
         .then(() => void 0)
