@@ -13,16 +13,16 @@ export const latestUpdatedKey = '__latest__'
 
 
 export class ReactiveStore<T> implements IReactiveStore<T> {
-  private dispatcher$ = new Subject<Action>()
-  private provider$: BehaviorSubject<T | RecursiveReadonly<T>>
+  private _dispatcher$ = new Subject<Action>()
+  private _provider$: BehaviorSubject<T | RecursiveReadonly<T>>
 
-  private concurrent: number
-  private loopType: number
-  private output: boolean
-  private ngZone: any // (NgZone | null) for Angular 2+
-  private testing: boolean
+  private _concurrent: number
+  private _loopType: number
+  private _output: boolean
+  private _ngZone: any // (NgZone | null) for Angular 2+
+  private _testing: boolean
 
-  private freezedInitialState: Readonly<T>
+  private _freezedInitialState: Readonly<T>
 
 
   constructor(
@@ -30,15 +30,15 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
     private options?: StoreOptions,
   ) {
     const o = options || {}
-    this.concurrent = o.concurrent || 1
-    this.loopType = o.loopType || LoopType.asap
-    this.output = o.output || false
-    this.ngZone = o.ngZone && 'run' in o.ngZone ? o.ngZone : null
-    this.testing = o.testing || false
+    this._concurrent = o.concurrent || 1
+    this._loopType = o.loopType || LoopType.asap
+    this._output = o.output || false
+    this._ngZone = o.ngZone && 'run' in o.ngZone ? o.ngZone : null
+    this._testing = o.testing || false
 
     const obj = initialState || {}
-    this.freezedInitialState = cloneDeep(obj)
-    this.provider$ = new BehaviorSubject<T>(cloneDeep(obj))
+    this._freezedInitialState = cloneDeep(obj)
+    this._provider$ = new BehaviorSubject<T>(cloneDeep(obj))
     this.createStore()
     this.applyEffectors()
   }
@@ -46,7 +46,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
 
   private createStore(): void {
     const queue$ =
-      this.dispatcher$
+      this._dispatcher$
         .concatMap(action => { // resolve outer callback.
           if (action.value instanceof Function) {
             return this.getter().take(1)
@@ -65,7 +65,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
           } else {
             return Observable.of(action)
           }
-        }, this.concurrent)
+        }, this._concurrent)
 
 
     const reduced$ =
@@ -87,9 +87,9 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
 
           const newState = Object.assign({}, state)
 
-          if (this.loopType === LoopType.asap) {
+          if (this._loopType === LoopType.asap) {
             asap(() => action.subject.next(newState))
-          } else if (this.loopType === LoopType.setimmediate) {
+          } else if (this._loopType === LoopType.setimmediate) {
             setImmediate(() => action.subject.next(newState))
           } else {
             setTimeout(() => action.subject.next(newState))
@@ -101,16 +101,16 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
 
     reduced$
       .subscribe(newState => {
-        if (this.output) {
+        if (this._output) {
           console.log('newState:', newState)
         }
 
-        if (this.ngZone) {
-          this.ngZone.run(() => { // for Angular 2+
-            this.provider$.next(newState)
+        if (this._ngZone) {
+          this._ngZone.run(() => { // for Angular 2+
+            this._provider$.next(newState)
           })
         } else {
-          this.provider$.next(newState)
+          this._provider$.next(newState)
         }
 
         this.effectAfterReduced(newState)
@@ -133,7 +133,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
    */
   setter<K extends keyof T>(key: K, value: ValueOrResolver<T, K>): Promise<void> {
     const subject = new Subject<T | RecursiveReadonly<T>>()
-    this.dispatcher$.next({ key, value, subject })
+    this._dispatcher$.next({ key, value, subject })
     return subject.take(1)
       .mapTo(void 0) // experimental
       .toPromise()
@@ -145,7 +145,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
    */
   setterPartial<K extends keyof T>(key: K, value: PartialValueOrResolver<T, K>): Promise<void> {
     const subject = new Subject<T | RecursiveReadonly<T>>()
-    this.dispatcher$.next({ key, value, subject })
+    this._dispatcher$.next({ key, value, subject })
     return subject.take(1)
       .mapTo(void 0) // experimental
       .toPromise()
@@ -157,8 +157,8 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
    */
   resetter<K extends keyof T>(key: K): Promise<void> {
     const subject = new Subject<T | RecursiveReadonly<T>>()
-    const value = this.freezedInitialState[key]
-    this.dispatcher$.next({ key, value, subject })
+    const value = this._freezedInitialState[key]
+    this._dispatcher$.next({ key, value, subject })
     return subject.take(1)
       .mapTo(void 0)
       .toPromise()
@@ -169,7 +169,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
    * To get all of the current state as Observable.
    */
   getter(): Observable<T> {
-    return this.provider$
+    return this._provider$
   }
 
 
@@ -177,7 +177,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
    * To get all of the current state as Promise.
    */
   getterAsPromise(): Promise<T> {
-    return this.provider$.take(1).toPromise()
+    return this._provider$.take(1).toPromise()
   }
 
 
@@ -185,9 +185,9 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
    * To reset to the initial state just for testing.
    */
   forceResetForTesting(): Promise<void> {
-    if (this.testing) {
+    if (this._testing) {
       console.info('***** RESET ALL STATE FOR TESTING *****')
-      const promises = Object.keys(this.freezedInitialState)
+      const promises = Object.keys(this._freezedInitialState)
         .map((key: keyof T) => {
           return this.resetter(key)
         })
@@ -205,8 +205,8 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
    * To complete and stop streams just for testing.
    */
   forceCompleteForTesting(): void {
-    if (this.testing) {
-      this.provider$.complete()
+    if (this._testing) {
+      this._provider$.complete()
     } else {
       console.error('forceCompleteForTesting is not invoked because testing option is not set to true.')
     }
