@@ -38,7 +38,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
 
     const obj = initialState || {}
     this.freezedInitialState = cloneDeep(obj)
-    this.provider$ = new BehaviorSubject<T>(obj)
+    this.provider$ = new BehaviorSubject<T>(cloneDeep(obj))
     this.createStore()
     this.applyEffectors()
   }
@@ -129,7 +129,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
 
 
   /**
-   * Set a new value to the specified key.
+   * To set a new value to the specified key.
    */
   setter<K extends keyof T>(key: K, value: ValueOrResolver<T, K>): Promise<void> {
     const subject = new Subject<T | RecursiveReadonly<T>>()
@@ -141,7 +141,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
 
 
   /**
-   * Set a new partial value to the specified key. Partial value will be merged.
+   * To set a new partial value to the specified key. Partial value will be merged.
    */
   setterPartial<K extends keyof T>(key: K, value: PartialValueOrResolver<T, K>): Promise<void> {
     const subject = new Subject<T | RecursiveReadonly<T>>()
@@ -153,7 +153,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
 
 
   /**
-   * Reset the value of the specified key.
+   * To reset the value under the specified key.
    */
   resetter<K extends keyof T>(key: K): Promise<void> {
     const subject = new Subject<T | RecursiveReadonly<T>>()
@@ -166,7 +166,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
 
 
   /**
-   * Get all of the current state as Observable.
+   * To get all of the current state as Observable.
    */
   getter(): Observable<T> {
     return this.provider$
@@ -174,7 +174,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
 
 
   /**
-   * Get all of the current state as Promise.
+   * To get all of the current state as Promise.
    */
   getterAsPromise(): Promise<T> {
     return this.provider$.take(1).toPromise()
@@ -182,9 +182,9 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
 
 
   /**
-   * Reset to the initial state just for testing.
+   * To reset to the initial state just for testing.
    */
-  resetAllStateForTesting(): Promise<void> {
+  forceResetForTesting(): Promise<void> {
     if (this.testing) {
       console.info('***** RESET ALL STATE FOR TESTING *****')
       const promises = Object.keys(this.freezedInitialState)
@@ -195,8 +195,20 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
         .then(() => void 0)
         .catch(err => { throw err })
     } else {
-      console.log('resetForTesting is not invoked because testing option is not set to true.')
+      console.error('resetForTesting is not invoked because testing option is not set to true.')
       return Promise.resolve(void 0)
+    }
+  }
+
+
+  /**
+   * To complete and stop streams just for testing.
+   */
+  forceCompleteForTesting(): void {
+    if (this.testing) {
+      this.provider$.complete()
+    } else {
+      console.error('forceCompleteForTesting is not invoked because testing option is not set to true.')
     }
   }
 

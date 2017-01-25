@@ -8,5 +8,6 @@ export interface IReactiveStore<T> {
   resetter<K extends keyof T>(key: K): Promise<void>,
   getter(): Observable<T>,
   getterAsPromise(): Promise<T>,
-  resetAllStateForTesting(): Promise<void>,
+  forceResetForTesting(): Promise<void>,
+  forceCompleteForTesting(): void,
 }
