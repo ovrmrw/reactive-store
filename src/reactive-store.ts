@@ -26,17 +26,17 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
 
 
   constructor(
-    private initialState: T,
-    private options?: StoreOptions,
+    private _initialState: T,
+    private _options?: StoreOptions,
   ) {
-    const o = options || {}
+    const o = _options || {}
     this._concurrent = o.concurrent || 1
     this._loopType = o.loopType || LoopType.asap
     this._output = o.output || false
     this._ngZone = o.ngZone && 'run' in o.ngZone ? o.ngZone : null
     this._testing = o.testing || false
 
-    const obj = initialState || {}
+    const obj = _initialState || {}
     this._freezedInitialState = cloneDeep(obj)
     this._provider$ = new BehaviorSubject<T>(cloneDeep(obj))
     this.createStore()
@@ -96,7 +96,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
           }
 
           return newState
-        }, this.initialState as T)
+        }, this._initialState as T)
 
 
     reduced$
