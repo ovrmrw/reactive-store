@@ -8,6 +8,12 @@ export interface Action {
 }
 
 
+export interface Next<T, K extends keyof T> {
+  state: T,
+  value: T[K],
+}
+
+
 export type Value<T, K extends keyof T> = T[K]
 export type ValueAsync<T, K extends keyof T> = Promise<T[K]> | Observable<T[K]>
 export type Resolver<T, K extends keyof T> = (value: T[K], state: T) => T[K]

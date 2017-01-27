@@ -4,7 +4,7 @@ const cloneDeep = require('lodash.clonedeep')
 
 import { Observable, Subject, BehaviorSubject } from 'rxjs'
 
-import { Action, ValueOrResolver, PartialValueOrResolver, RecursiveReadonly, LoopType, StoreOptions } from './common'
+import { Action, Next, ValueOrResolver, PartialValueOrResolver, RecursiveReadonly, LoopType, StoreOptions } from './common'
 import { IReactiveStore } from './interfaces'
 
 import './add/operator/all'
@@ -79,20 +79,26 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
           }
 
           if (temp instanceof Object && !(temp instanceof Array)) { // merge if value is Object.
-            state[action.key] = { ...state[action.key], ...temp }
+            // state[action.key] = { ...state[action.key], ...temp }
+            state[action.key] = Object.assign(state[action.key], temp)
           } else {
             state[action.key] = temp
           }
           state[latestUpdatedKey] = action.key
 
-          const newState = Object.assign({}, state)
+          const newState: T = Object.assign({}, state)
+
+          const nextObj: Next<T, any> = Object.assign({}, {
+            state: newState,
+            value: newState[action.key],
+          })
 
           if (this._loopType === LoopType.asap) {
-            asap(() => action.subject.next(newState))
+            asap(() => action.subject.next(nextObj))
           } else if (this._loopType === LoopType.setimmediate) {
-            setImmediate(() => action.subject.next(newState))
+            setImmediate(() => action.subject.next(nextObj))
           } else {
-            setTimeout(() => action.subject.next(newState))
+            setTimeout(() => action.subject.next(nextObj))
           }
 
           return newState
@@ -131,11 +137,11 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
   /**
    * To set a new value to the specified key.
    */
-  setter<K extends keyof T>(key: K, value: ValueOrResolver<T, K>): Promise<void> {
-    const subject = new Subject<T | RecursiveReadonly<T>>()
+  setter<K extends keyof T>(key: K, value: ValueOrResolver<T, K>): Promise<Next<T, K>> {
+    const subject = new Subject<Next<T, K> | RecursiveReadonly<Next<T, K>>>()
     this._dispatcher$.next({ key, value, subject })
     return subject.take(1)
-      .mapTo(void 0) // experimental
+      // .mapTo(void 0) // experimental
       .toPromise()
   }
 
@@ -143,11 +149,11 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
   /**
    * To set a new partial value to the specified key. Partial value will be merged.
    */
-  setterPartial<K extends keyof T>(key: K, value: PartialValueOrResolver<T, K>): Promise<void> {
-    const subject = new Subject<T | RecursiveReadonly<T>>()
+  setterPartial<K extends keyof T>(key: K, value: PartialValueOrResolver<T, K>): Promise<Next<T, K>> {
+    const subject = new Subject<Next<T, K> | RecursiveReadonly<Next<T, K>>>()
     this._dispatcher$.next({ key, value, subject })
     return subject.take(1)
-      .mapTo(void 0) // experimental
+      // .mapTo(void 0) // experimental
       .toPromise()
   }
 
@@ -155,12 +161,12 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
   /**
    * To reset the value under the specified key.
    */
-  resetter<K extends keyof T>(key: K): Promise<void> {
-    const subject = new Subject<T | RecursiveReadonly<T>>()
+  resetter<K extends keyof T>(key: K): Promise<Next<T, K>> {
+    const subject = new Subject<Next<T, K> | RecursiveReadonly<Next<T, K>>>()
     const value = this._freezedInitialState[key]
     this._dispatcher$.next({ key, value, subject })
     return subject.take(1)
-      .mapTo(void 0)
+      // .mapTo(void 0)
       .toPromise()
   }
 
@@ -184,7 +190,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
   /**
    * To reset to the initial state just for testing.
    */
-  forceResetForTesting(): Promise<void> {
+  forceResetForTesting(): Promise<void> | never {
     if (this._testing) {
       console.info('***** RESET ALL STATE FOR TESTING *****')
       const promises = Object.keys(this._freezedInitialState)
@@ -195,8 +201,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
         .then(() => void 0)
         .catch(err => { throw err })
     } else {
-      console.error('resetForTesting is not invoked because testing option is not set to true.')
-      return Promise.resolve(void 0)
+      throw new Error('resetForTesting is not invoked because testing option is not set to true.')
     }
   }
 
@@ -204,11 +209,11 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
   /**
    * To complete and stop streams just for testing.
    */
-  forceCompleteForTesting(): void {
+  forceCompleteForTesting(): void | never {
     if (this._testing) {
       this._provider$.complete()
     } else {
-      console.error('forceCompleteForTesting is not invoked because testing option is not set to true.')
+      throw new Error('forceCompleteForTesting is not invoked because testing option is not set to true.')
     }
   }
 
