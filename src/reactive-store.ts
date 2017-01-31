@@ -23,7 +23,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
   private _testing: boolean
   private _useFreeze: boolean
 
-  private _freezedInitialState: Readonly<T>
+  private _frozenInitialState: Readonly<T>
 
 
   constructor(
@@ -39,7 +39,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
     this._useFreeze = o.useFreeze || false
 
     const obj = _initialState || {}
-    this._freezedInitialState = cloneDeep(obj)
+    this._frozenInitialState = cloneDeep(obj)
     this._provider$ = new BehaviorSubject<T>(cloneDeep(obj))
     this.createStore()
     this.applyEffectors()
@@ -104,7 +104,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
           }
 
           return newState
-        }, this._freezedInitialState as T)
+        }, this._frozenInitialState as T)
 
 
     reduced$
@@ -112,16 +112,16 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
         // useFreeze option takes much more processing cost.
         const frozenState = this._useFreeze ? deepFreeze(cloneDeep(newState)) : newState
 
+        if (this._output) {
+          console.log('newState:', frozenState)
+        }
+
         if (this._ngZone) {
           this._ngZone.run(() => { // for Angular 2+
             this._provider$.next(frozenState)
           })
         } else {
           this._provider$.next(frozenState)
-        }
-
-        if (this._output) {
-          console.log('newState:', newState)
         }
 
         this.effectAfterReduced(newState)
@@ -168,7 +168,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
    */
   resetter<K extends keyof T>(key: K): Promise<Next<T, K>> {
     const subject = new Subject<Next<T, K> | RecursiveReadonly<Next<T, K>>>()
-    const value = this._freezedInitialState[key]
+    const value = this._frozenInitialState[key]
     this._dispatcher$.next({ key, value, subject })
     return subject.take(1)
       // .mapTo(void 0)
@@ -198,7 +198,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
   forceResetForTesting(): Promise<void> | never {
     if (this._testing) {
       console.info('***** RESET ALL STATE FOR TESTING *****')
-      const promises = Object.keys(this._freezedInitialState)
+      const promises = Object.keys(this._frozenInitialState)
         .map((key: keyof T) => {
           return this.resetter(key)
         })
