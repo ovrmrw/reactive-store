@@ -109,7 +109,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
 
     reduced$
       .subscribe(newState => {
-        // useFreeze option takes much more processing cost.
+        /* useFreeze option takes much more processing cost. */
         const frozenState = this._useFreeze ? deepFreeze(cloneDeep(newState)) : newState
 
         if (this._output) {
