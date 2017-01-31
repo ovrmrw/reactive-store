@@ -1,10 +1,10 @@
 require('setimmediate')
 const asap = require('asap') as (func: Function) => void
-const cloneDeep = require('lodash.clonedeep')
+const cloneDeep = require('lodash.clonedeep') as <T>(obj: T) => T
 
 import { Observable, Subject, BehaviorSubject } from 'rxjs'
 
-import { Action, Next, ValueOrResolver, PartialValueOrResolver, RecursiveReadonly, LoopType, StoreOptions } from './common'
+import { Action, Next, ValueOrResolver, PartialValueOrResolver, RecursiveReadonly, LoopType, StoreOptions, deepFreeze } from './common'
 import { IReactiveStore } from './interfaces'
 
 import './add/operator/all'
@@ -21,6 +21,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
   private _output: boolean
   private _ngZone: any // (NgZone | null) for Angular 2+
   private _testing: boolean
+  private _useFreeze: boolean
 
   private _freezedInitialState: Readonly<T>
 
@@ -35,6 +36,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
     this._output = o.output || false
     this._ngZone = o.ngZone && 'run' in o.ngZone ? o.ngZone : null
     this._testing = o.testing || false
+    this._useFreeze = o.useFreeze || false
 
     const obj = _initialState || {}
     this._freezedInitialState = cloneDeep(obj)
@@ -102,21 +104,24 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
           }
 
           return newState
-        }, this._initialState as T)
+        }, this._freezedInitialState as T)
 
 
     reduced$
       .subscribe(newState => {
-        if (this._output) {
-          console.log('newState:', newState)
-        }
+        // useFreeze option takes much more processing cost.
+        const frozenState = this._useFreeze ? deepFreeze(cloneDeep(newState)) : newState
 
         if (this._ngZone) {
           this._ngZone.run(() => { // for Angular 2+
-            this._provider$.next(newState)
+            this._provider$.next(frozenState)
           })
         } else {
-          this._provider$.next(newState)
+          this._provider$.next(frozenState)
+        }
+
+        if (this._output) {
+          console.log('newState:', newState)
         }
 
         this.effectAfterReduced(newState)

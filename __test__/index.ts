@@ -26,6 +26,7 @@ const store = getReactiveStoreAsSingleton(initialState, {
   concurrent: Number.POSITIVE_INFINITY, // DEFAULT: 1
   output: true, // DEFAULT: false
   loopType: LoopType.asap, // DEFAULT: LoopType.asap
+  useFreeze: true, // DEFAULT: false
 })
 
 
@@ -37,6 +38,7 @@ store.getter()
   .filterByUpdatedKey(KEY.increment)
   .subscribe(state => {
     value = state.increment.counter
+    // state.increment.counter++ // if useFreeze options is set to true, this line causes a type error.
   })
 
 

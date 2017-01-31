@@ -84,4 +84,26 @@ export interface StoreOptions {
   loopType?: number,
   ngZone?: any, // NgZone for Angular 2+
   testing?: boolean,
+  useFreeze?: boolean,
+}
+
+
+/**
+ * reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze
+ */
+export function deepFreeze<T>(obj: T): T {
+  // Retrieve the property names defined on obj
+  const propNames = Object.getOwnPropertyNames(obj)
+
+  // Freeze properties before freezing self
+  propNames.forEach(name => {
+    const prop = obj[name]
+
+    // Freeze prop if it is an object
+    if (typeof prop === 'object' && prop !== null)
+      deepFreeze(prop)
+  })
+
+  // Freeze self (no-op if already frozen)
+  return Object.freeze(obj)
 }
