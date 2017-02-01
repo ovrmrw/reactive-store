@@ -23,14 +23,11 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
   private _testing: boolean
   private _useFreeze: boolean
 
-  private _frozenInitialState: Readonly<T>
+  private _initialState: T
 
 
-  constructor(
-    private _initialState: T,
-    private _options?: StoreOptions,
-  ) {
-    const o = _options || {}
+  constructor(initialState: T, options?: StoreOptions) {
+    const o = options || {}
     this._concurrent = o.concurrent || 1
     this._loopType = o.loopType || LoopType.asap
     this._output = o.output || false
@@ -38,8 +35,8 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
     this._testing = o.testing || false
     this._useFreeze = o.useFreeze || false
 
-    const obj = _initialState || {}
-    this._frozenInitialState = cloneDeep(obj)
+    const obj = initialState || {}
+    this._initialState = cloneDeep(obj)
     this._provider$ = new BehaviorSubject<T>(cloneDeep(obj))
     this.createStore()
     this.applyEffectors()
@@ -81,7 +78,6 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
           }
 
           if (temp instanceof Object && !(temp instanceof Array)) { // merge if value is Object.
-            // state[action.key] = { ...state[action.key], ...temp }
             state[action.key] = Object.assign({}, state[action.key], temp)
           } else {
             state[action.key] = temp
@@ -104,7 +100,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
           }
 
           return newState
-        }, cloneDeep(this._frozenInitialState) as T)
+        }, cloneDeep(this._initialState) as T)
 
 
     reduced$
@@ -142,11 +138,11 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
   /**
    * To set a new value to the specified key.
    */
-  setter<K extends keyof T>(key: K, value: ValueOrResolver<T, K>): Promise<Next<T, K>> {
+  setter<K extends keyof T>(key: K, value: ValueOrResolver<T, K>): Promise<void | Next<T, K>> {
     const subject = new Subject<Next<T, K> | RecursiveReadonly<Next<T, K>>>()
     this._dispatcher$.next({ key, value, subject })
     return subject.take(1)
-      // .mapTo(void 0) // experimental
+      .mapTo(void 0) // experimental
       .toPromise()
   }
 
@@ -154,11 +150,11 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
   /**
    * To set a new partial value to the specified key. Partial value will be merged.
    */
-  setterPartial<K extends keyof T>(key: K, value: PartialValueOrResolver<T, K>): Promise<Next<T, K>> {
+  setterPartial<K extends keyof T>(key: K, value: PartialValueOrResolver<T, K>): Promise<void | Next<T, K>> {
     const subject = new Subject<Next<T, K> | RecursiveReadonly<Next<T, K>>>()
     this._dispatcher$.next({ key, value, subject })
     return subject.take(1)
-      // .mapTo(void 0) // experimental
+      .mapTo(void 0) // experimental
       .toPromise()
   }
 
@@ -166,12 +162,12 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
   /**
    * To reset the value under the specified key.
    */
-  resetter<K extends keyof T>(key: K): Promise<Next<T, K>> {
+  resetter<K extends keyof T>(key: K): Promise<void | Next<T, K>> {
     const subject = new Subject<Next<T, K> | RecursiveReadonly<Next<T, K>>>()
-    const value = this._frozenInitialState[key]
+    const value = this._initialState[key]
     this._dispatcher$.next({ key, value, subject })
     return subject.take(1)
-      // .mapTo(void 0)
+      .mapTo(void 0) // experimental
       .toPromise()
   }
 
@@ -198,7 +194,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
   forceResetForTesting(): Promise<void> | never {
     if (this._testing) {
       console.info('***** RESET ALL STATE FOR TESTING *****')
-      const promises = Object.keys(this._frozenInitialState)
+      const promises = Object.keys(this._initialState)
         .map((key: keyof T) => {
           return this.resetter(key)
         })
@@ -226,16 +222,8 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
   /**
    * To get initial state synchronously.
    */
-  getInitialState(): T {
-    return this._frozenInitialState
-  }
-
-
-  /**
-   * To get initial state synchronously.
-   */
   get initialState(): T {
-    return this.getInitialState()
+    return this._initialState
   }
 
 }

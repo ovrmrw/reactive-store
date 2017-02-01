@@ -11,4 +11,5 @@ export interface IReactiveStore<T> {
   getterAsPromise(): Promise<T>,
   forceResetForTesting(): Promise<void>,
   forceCompleteForTesting(): void,
+  initialState: T,
 }
