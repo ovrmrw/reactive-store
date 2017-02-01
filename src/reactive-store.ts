@@ -104,7 +104,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
           }
 
           return newState
-        }, this._frozenInitialState as T)
+        }, cloneDeep(this._frozenInitialState) as T)
 
 
     reduced$
@@ -228,6 +228,14 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
    */
   getInitialState(): T {
     return this._frozenInitialState
+  }
+
+
+  /**
+   * To get initial state synchronously.
+   */
+  get initialState(): T {
+    return this.getInitialState()
   }
 
 }
