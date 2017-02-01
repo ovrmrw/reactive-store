@@ -222,4 +222,12 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
     }
   }
 
+
+  /**
+   * To get initial state synchronously.
+   */
+  getInitialState(): T {
+    return this._frozenInitialState
+  }
+
 }
