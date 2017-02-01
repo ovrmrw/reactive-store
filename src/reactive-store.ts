@@ -82,7 +82,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
 
           if (temp instanceof Object && !(temp instanceof Array)) { // merge if value is Object.
             // state[action.key] = { ...state[action.key], ...temp }
-            state[action.key] = Object.assign(state[action.key], temp)
+            state[action.key] = Object.assign({}, state[action.key], temp)
           } else {
             state[action.key] = temp
           }
