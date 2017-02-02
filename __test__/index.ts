@@ -1,5 +1,5 @@
 import * as assert from 'assert'
-import { Observable } from 'rxjs'
+import { Observable } from 'rxjs/Observable'
 
 import { getReactiveStoreAsSingleton, getObjectKeys, LoopType } from '../src'
 
@@ -15,7 +15,7 @@ interface IncrementState {
 
 const initialState: AppState = {
   increment: {
-    counter: 0
+    counter: 0,
   },
   timestamp: 0,
 }
@@ -75,10 +75,10 @@ store.setter(KEY.increment, (p) => ({ counter: p.counter - 1 }))
   .then(() => store.setter(KEY.timestamp, new Date().getTime()))
 
 
-setTimeout(() => {
+setImmediate(() => {
   assert(value === 0)
   assert(typeof timestamp === 'number' && timestamp > 0)
   assert(store.initialState.increment.counter === 0)
   assert(store.initialState.timestamp === 0)
   console.log('passed all tests.')
-}, 100)
+})

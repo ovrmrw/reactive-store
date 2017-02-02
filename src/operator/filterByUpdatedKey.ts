@@ -1,4 +1,6 @@
-import { Observable, Subscriber, Operator } from 'rxjs'
+import { Observable } from 'rxjs/Observable'
+import { Subscriber } from 'rxjs/Subscriber'
+import { Operator } from 'rxjs/Operator'
 import { TeardownLogic } from 'rxjs/Subscription'
 
 import { latestUpdatedKey } from '../reactive-store'

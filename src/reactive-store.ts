@@ -2,7 +2,18 @@ require('setimmediate')
 const asap = require('asap') as (func: Function) => void
 const cloneDeep = require('lodash.clonedeep') as <T>(obj: T) => T
 
-import { Observable, Subject, BehaviorSubject } from 'rxjs'
+import { Observable } from 'rxjs/Observable'
+import { Subject } from 'rxjs/Subject'
+import { BehaviorSubject } from 'rxjs/BehaviorSubject'
+import 'rxjs/add/observable/of'
+import 'rxjs/add/observable/from'
+import 'rxjs/add/operator/concatMap'
+import 'rxjs/add/operator/mergeMap'
+import 'rxjs/add/operator/take'
+import 'rxjs/add/operator/map'
+import 'rxjs/add/operator/mapTo'
+import 'rxjs/add/operator/scan'
+import 'rxjs/add/operator/toPromise'
 
 import { Action, Next, ValueOrResolver, PartialValueOrResolver, RecursiveReadonly, LoopType, StoreOptions, deepFreeze } from './common'
 import { IReactiveStore } from './interfaces'
@@ -35,9 +46,9 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
     this._testing = o.testing || false
     this._useFreeze = o.useFreeze || false
 
-    const obj = initialState || {}
-    this._initialState = cloneDeep(obj)
-    this._provider$ = new BehaviorSubject<T>(cloneDeep(obj))
+    const state: T = initialState || {}
+    this._initialState = cloneDeep(state)
+    this._provider$ = new BehaviorSubject<T>(cloneDeep(state))
     this.createStore()
     this.applyEffectors()
   }
