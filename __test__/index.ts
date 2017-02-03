@@ -20,6 +20,7 @@ const initialState: AppState = {
   timestamp: 0,
 }
 
+
 const KEY = getObjectKeys(initialState)
 
 const store = getReactiveStoreAsSingleton(initialState, {

@@ -204,7 +204,9 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
    */
   forceResetForTesting(): Promise<void> | never {
     if (this._testing) {
-      console.info('***** RESET ALL STATE FOR TESTING *****')
+      if (this._output) {
+        console.info('***** RESET ALL STATE FOR TESTING *****')
+      }
       const promises = Object.keys(this._initialState)
         .map((key: keyof T) => {
           return this.resetter(key)
