@@ -1,4 +1,6 @@
-import { Observable } from 'rxjs/Rx'
+import { Observable } from 'rxjs/Observable'
+import 'rxjs/add/observable/of'
+import 'rxjs/add/operator/delay'
 
 import { ReactiveStore, getReactiveStoreAsSingleton, getObjectKeys, LoopType } from '../index'
 
@@ -22,7 +24,6 @@ const initialState: AppState = {
 }
 
 const KEY = getObjectKeys(initialState)
-
 
 
 

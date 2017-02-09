@@ -1,4 +1,6 @@
-import { Observable } from 'rxjs/Rx'
+import { Observable } from 'rxjs/Observable'
+import 'rxjs/add/observable/of'
+import 'rxjs/add/operator/delay'
 
 import { ReactiveStore, getReactiveStoreAsSingleton, getObjectKeys, LoopType } from '../index'
 
@@ -24,15 +26,16 @@ const initialState: AppState = {
 const KEY = getObjectKeys(initialState)
 
 
+
 describe('Basic test', () => {
   let store: ReactiveStore<AppState>
 
 
   beforeEach(() => {
     store = new ReactiveStore(initialState, {
-      concurrent: Number.POSITIVE_INFINITY, // DEFAULT: 1
-      // output: true, // DEFAULT: false
-      // useFreeze: true, // DEFAULT: false
+      concurrent: Number.POSITIVE_INFINITY,
+      // output: true,
+      // useFreeze: true,
     })
   })
 
