@@ -39,7 +39,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
 
   constructor(initialState: T, options?: StoreOptions) {
     const o = options || {}
-    this._concurrent = o.concurrent || 1
+    this._concurrent = o.concurrent || Number.POSITIVE_INFINITY
     this._loopType = o.loopType || LoopType.asap
     this._output = o.output || false
     this._ngZone = o.ngZone && 'run' in o.ngZone ? o.ngZone : null
@@ -57,7 +57,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
   private createStore(): void {
     const queue$ =
       this._dispatcher$
-        .concatMap(action => { // resolve outer callback.
+        .mergeMap(action => { // resolve outer callback.
           if (action.value instanceof Function) {
             return this.getter().take(1)
               .map(state => {

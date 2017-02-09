@@ -81,7 +81,7 @@ Generate a store instance by `getReactiveStoreAsSingleton` method with `initialS
 
 ```
 const store = getReactiveStoreAsSingleton(initialState, {
-  concurrent: Number.POSITIVE_INFINITY, // DEFAULT: 1 ... concurrent number of async processes.
+  concurrent: Number.POSITIVE_INFINITY, // DEFAULT: Number.POSITIVE_INFINITY ... concurrent number of async processes.
   output: true, // DEFAULT: false ... whether to output states logs.
   useFreeze: true, // DEFAULT: false ... whether to freeze states which components will get.
 })
