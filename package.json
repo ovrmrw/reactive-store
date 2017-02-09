@@ -8,6 +8,7 @@
     "prebuild": "rimraf dist",
     "build": "tsc --outDir dist",
     "test": "ts-node __test__",
+    "jest": "jest --config=jest.config.json --watch",
     "prepublish": "npm test && npm run build"
   },
   "keywords": [
@@ -31,11 +32,14 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@types/jest": "^18.1.1",
     "@types/lodash.clonedeep": "^4.5.0",
     "@types/node": "^6.0.40",
     "concurrently": "^2.2.0",
+    "jest": "^18.1.0",
     "nodemon": "^1.11.0",
     "rimraf": "^2.5.4",
+    "ts-jest": "^18.0.3",
     "ts-node": "^2.0.0",
     "tslint": "^4.3.1",
     "typescript": "^2.2.0",
