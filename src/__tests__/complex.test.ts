@@ -41,12 +41,13 @@ describe('Complex test for concurrent: 1', () => {
 
   it('at the same time', async () => {
     const promises = [
-      store.setter(KEY.array, Observable.of((p) => [...p, 3]).delay(10)),
+      store.setter(KEY.array, (p) => [...p, 3]),
       store.setter(KEY.array, (p) => [...p, 4]),
+      store.setter(KEY.array, (p) => p.slice(1)),
     ]
     await Promise.all(promises)
     const state = await store.getterAsPromise()
-    expect(state.array).toEqual([1, 2, 3, 4])
+    expect(state.array).toEqual([2, 3, 4])
   })
 
 

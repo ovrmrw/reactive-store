@@ -76,7 +76,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
         .mergeMap(action => { // resolve async(Promise or Observable).
           if (action.value instanceof Promise || action.value instanceof Observable) {
             return Observable.from(action.value)
-              .mergeMap(value => Observable.of(Object.assign(action, { value })))
+              .map(value => Object.assign(action, { value }) as Action)
           } else {
             return Observable.of(action)
           }
@@ -95,9 +95,9 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
 
           if (temp instanceof Object && !(temp instanceof Array)) { // merge if value is Object.
             // state[action.key] = Object.assign({}, state[action.key], temp)
-            state[action.key] = { ...state[action.key], ...temp }
+            state[action.key] = { ...state[action.key], ...temp } // momery-reference is changed.
           } else if (temp instanceof Array) {
-            state[action.key] = [...temp]
+            state[action.key] = [...temp] // momery-reference is changed.
           } else {
             state[action.key] = temp
           }
@@ -232,9 +232,10 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
   /**
    * To complete and stop streams just for testing.
    */
-  forceCompleteForTesting(): void | never {
+  forceCompleteForTesting(): Promise<void> | never {
     if (this._testing) {
       this._provider$.complete()
+      return new Promise(setTimeout)
     } else {
       throw new Error('forceCompleteForTesting is not invoked because testing option is not set to true.')
     }

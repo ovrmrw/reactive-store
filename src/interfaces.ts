@@ -9,7 +9,7 @@ export interface IReactiveStore<T> {
   resetter<K extends keyof T>(key: K): Promise<void | Next<T, K>>,
   getter(): Observable<T>,
   getterAsPromise(): Promise<T>,
-  forceResetForTesting(): Promise<void>,
-  forceCompleteForTesting(): void,
+  forceResetForTesting(): Promise<void> | never,
+  forceCompleteForTesting(): Promise<void> | never,
   initialState: T,
 }
