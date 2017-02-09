@@ -1,6 +1,6 @@
 {
   "name": "ovrmrw-reactive-store",
-  "version": "0.0.33",
+  "version": "0.0.35",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "prebuild": "rimraf dist",
     "build": "tsc --outDir dist",
     "test": "ts-node __test__ && npm run jest",
-    "jest": "jest --config=jest.config.json",
+    "jest": "jest --config=jest.config.json --no-cache",
     "jest:w": "jest --config=jest.config.json --watch",
     "prepublish": "npm test && npm run build"
   },
@@ -49,7 +49,7 @@
   "dependencies": {
     "asap": "^2.0.5",
     "lodash.clonedeep": "^4.5.0",
-    "rxjs": "^5.0.3",
+    "rxjs": "^5.1.0",
     "setimmediate": "^1.0.5"
   },
   "peerDependencies": {

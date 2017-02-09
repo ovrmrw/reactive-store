@@ -33,9 +33,20 @@ describe('Complex test for concurrent: 1', () => {
   beforeEach(() => {
     store = new ReactiveStore(initialState, {
       concurrent: 1,
-      output: true,
+      // output: true,
       // useFreeze: true,
     })
+  })
+
+
+  it('at the same time', async () => {
+    const promises = [
+      store.setter(KEY.array, Observable.of((p) => [...p, 3]).delay(10)),
+      store.setter(KEY.array, (p) => [...p, 4]),
+    ]
+    await Promise.all(promises)
+    const state = await store.getterAsPromise()
+    expect(state.array).toEqual([1, 2, 3, 4])
   })
 
 
@@ -44,7 +55,7 @@ describe('Complex test for concurrent: 1', () => {
       store.setter(KEY.array, Observable.of((p) => [...p, 3]).delay(20)),
       store.setter(KEY.array, Observable.of((p) => [...p, 4]).delay(10)),
       store.setter(KEY.array, Observable.of((p) => [...p, 5])),
-      store.setter(KEY.array, () => (p) => [...p, 6]),
+      store.setter(KEY.array, (p) => [...p, 6]),
     ]
     await Promise.all(promises)
     const state = await store.getterAsPromise()
@@ -62,7 +73,7 @@ describe('Complex test for concurrent: Number.POSITIVE_INFINITY', () => {
   beforeEach(() => {
     store = new ReactiveStore(initialState, {
       concurrent: Number.POSITIVE_INFINITY,
-      output: true,
+      // output: true,
       // useFreeze: true,
     })
   })
@@ -73,7 +84,7 @@ describe('Complex test for concurrent: Number.POSITIVE_INFINITY', () => {
       store.setter(KEY.array, Observable.of((p) => [...p, 3]).delay(20)),
       store.setter(KEY.array, Observable.of((p) => [...p, 4]).delay(10)),
       store.setter(KEY.array, Observable.of((p) => [...p, 5])),
-      store.setter(KEY.array, () => (p) => [...p, 6]),
+      store.setter(KEY.array, (p) => [...p, 6]),
     ]
     await Promise.all(promises)
     const state = await store.getterAsPromise()

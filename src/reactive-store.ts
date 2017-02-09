@@ -57,18 +57,23 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
   private createStore(): void {
     const queue$ =
       this._dispatcher$
-        .mergeMap(action => { // resolve outer callback.
+        .mergeMap(action => { // execute outer callback.
           if (action.value instanceof Function) {
             return this.getter().take(1)
               .map(state => {
-                action.value = action.value.call(null, state[action.key], state)
-                return action
+                const temp = action.value.call(null, state[action.key], state)
+                if (temp instanceof Function || temp instanceof Promise || temp instanceof Observable) {
+                  action.value = temp
+                  return action // action.value instanceof Function or Promise or Observable
+                } else {
+                  return action // action.value instanceof Function
+                }
               })
           } else {
             return Observable.of(action)
           }
         })
-        .mergeMap(action => { // resolve async.
+        .mergeMap(action => { // resolve async(Promise or Observable).
           if (action.value instanceof Promise || action.value instanceof Observable) {
             return Observable.from(action.value)
               .mergeMap(value => Observable.of(Object.assign(action, { value })))
@@ -82,7 +87,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
       queue$
         .scan((state, action) => {
           let temp: any
-          if (action.value instanceof Function) { // resolve inner callback.
+          if (action.value instanceof Function) { // execute inner callback.
             temp = action.value.call(null, state[action.key], state)
           } else {
             temp = action.value

@@ -56,7 +56,7 @@ Create `initialState` using interfaces above.
 ```
 const initialState: AppState = {
   increment: {
-    counter: 0
+    counter: 0,
   },
   timestamp: 0,
 }
@@ -81,7 +81,6 @@ Generate a store instance by `getReactiveStoreAsSingleton` method with `initialS
 
 ```
 const store = getReactiveStoreAsSingleton(initialState, {
-  concurrent: Number.POSITIVE_INFINITY, // DEFAULT: Number.POSITIVE_INFINITY ... concurrent number of async processes.
   output: true, // DEFAULT: false ... whether to output states logs.
   useFreeze: true, // DEFAULT: false ... whether to freeze states which components will get.
 })

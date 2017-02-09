@@ -25,7 +25,6 @@ const KEY = getObjectKeys(initialState)
 
 const store = getReactiveStoreAsSingleton(initialState, {
   output: true, // DEFAULT: false
-  loopType: LoopType.asap, // DEFAULT: LoopType.asap
   useFreeze: true, // DEFAULT: false
 })
 
