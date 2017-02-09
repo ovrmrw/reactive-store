@@ -246,7 +246,9 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
    * To get initial state synchronously.
    */
   get initialState(): T {
-    return this._initialState
+    const state = cloneDeep(this._initialState)
+    const frozenState = this._useFreeze ? deepFreeze(state) : state
+    return frozenState
   }
 
 }
