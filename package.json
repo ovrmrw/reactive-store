@@ -1,6 +1,6 @@
 {
   "name": "ovrmrw-reactive-store",
-  "version": "0.0.38",
+  "version": "0.0.39",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -22,13 +22,10 @@
     "LICENSE",
     "index.js",
     "index.d.ts",
-    "esnext.js",
-    "esnext.d.ts",
     "dist",
     "dist-esnext",
     "__test__",
-    "package.json",
-    "tsconfig.json"
+    "package.json"
   ],
   "author": "Tomohiro Noguchi @ovrmrw",
   "repository": {
