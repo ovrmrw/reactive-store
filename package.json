@@ -1,6 +1,6 @@
 {
   "name": "ovrmrw-reactive-store",
-  "version": "0.0.40",
+  "version": "0.0.41",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -40,6 +40,7 @@
     "concurrently": "^2.2.0",
     "jest": "^18.1.0",
     "nodemon": "^1.11.0",
+    "npm-run-all": "^4.0.1",
     "rimraf": "^2.5.4",
     "ts-jest": "^18.0.3",
     "ts-node": "^2.0.0",

@@ -12,4 +12,5 @@ export interface IReactiveStore<T> {
   forceResetForTesting(): Promise<void> | never,
   forceCompleteForTesting(): Promise<void> | never,
   initialState: T,
+  currentState: T,
 }

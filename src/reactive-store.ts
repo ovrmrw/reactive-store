@@ -251,4 +251,14 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
     return frozenState
   }
 
+
+  /**
+   * To get current state synchronously.
+   */
+  get currentState(): T {
+    const state = cloneDeep(this._provider$.getValue())
+    const frozenState = this._useFreeze ? deepFreeze(state) : state
+    return frozenState as T
+  }
+
 }
