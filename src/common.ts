@@ -1,5 +1,6 @@
 import { Observable } from 'rxjs/Observable'
 import { Subject } from 'rxjs/Subject'
+import { Middleware, GenericStoreEnhancer } from 'redux'
 
 
 export interface Action {
@@ -86,6 +87,8 @@ export interface StoreOptions {
   ngZone?: any, // NgZone for Angular 2+
   testing?: boolean,
   useFreeze?: boolean,
+  useRedux?: boolean,
+  reduxMiddleware?: GenericStoreEnhancer,
 }
 
 

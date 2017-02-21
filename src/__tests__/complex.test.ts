@@ -1,3 +1,5 @@
+import { applyMiddleware } from 'redux'
+import * as createLogger from 'redux-logger'
 import { Observable } from 'rxjs/Observable'
 import 'rxjs/add/observable/of'
 import 'rxjs/add/operator/delay'
@@ -36,6 +38,7 @@ describe('Complex test for concurrent: 1', () => {
       concurrent: 1,
       // output: true,
       // useFreeze: true,
+      // reduxMiddleware: applyMiddleware(createLogger()),
     })
   })
 

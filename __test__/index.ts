@@ -1,5 +1,7 @@
 import * as assert from 'assert'
 import { Observable } from 'rxjs/Observable'
+import { applyMiddleware } from 'redux'
+import * as createLogger from 'redux-logger'
 
 import { getReactiveStoreAsSingleton, getObjectKeys, LoopType } from '../src'
 
@@ -26,6 +28,7 @@ const KEY = getObjectKeys(initialState)
 const store = getReactiveStoreAsSingleton(initialState, {
   output: true, // DEFAULT: false
   useFreeze: true, // DEFAULT: false
+  // reduxMiddleware: applyMiddleware(createLogger()), // DEFAULT: undefined
 })
 
 

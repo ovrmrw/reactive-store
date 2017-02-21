@@ -2,6 +2,7 @@ require('setimmediate')
 const asap = require('asap') as (func: Function) => void
 const cloneDeep = require('lodash.clonedeep') as <T>(obj: T) => T
 
+import { createStore, Store, GenericStoreEnhancer } from 'redux'
 import { Observable } from 'rxjs/Observable'
 import { Subject } from 'rxjs/Subject'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
@@ -33,8 +34,12 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
   private _ngZone: any // (NgZone | null) for Angular 2+
   private _testing: boolean
   private _useFreeze: boolean
+  private _useRedux: boolean
+  private _reduxMiddleware: GenericStoreEnhancer | undefined
 
   private _initialState: T
+
+  private _reduxStore: Store<T>
 
 
   constructor(initialState: T, options?: StoreOptions) {
@@ -45,12 +50,15 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
     this._ngZone = o.ngZone && 'run' in o.ngZone ? o.ngZone : null
     this._testing = o.testing || false
     this._useFreeze = o.useFreeze || false
+    this._useRedux = o.useRedux || o.reduxMiddleware ? true : false
+    this._reduxMiddleware = o.reduxMiddleware || undefined
 
     const state: T = initialState || {}
     this._initialState = cloneDeep(state)
     this._provider$ = new BehaviorSubject<T>(cloneDeep(state))
     this.createStore()
     this.applyEffectors()
+    this.createReduxStore()
   }
 
 
@@ -141,6 +149,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
         }
 
         this.effectAfterReduced(newState)
+        this.dispatchReduxStore(newState)
       })
   }
 
@@ -152,6 +161,26 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
 
   private applyEffectors(): void {
 
+  }
+
+
+  private createReduxStore(): void {
+    if (this._useRedux) {
+      this._reduxStore = createStore(
+        () => this.currentState,
+        this.currentState,
+        this._reduxMiddleware
+      )
+    }
+  }
+
+
+  private dispatchReduxStore(state: T): void {
+    if (this._useRedux && this._reduxStore) {
+      const key = state[latestUpdatedKey]
+      const value = state[key]
+      this._reduxStore.dispatch({ type: key, payload: value })
+    }
   }
 
 
