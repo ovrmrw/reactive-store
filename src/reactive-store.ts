@@ -133,12 +133,12 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
 
 
     reduced$
-      .subscribe(newState => {
+      .subscribe(state => {
         /* useFreeze option takes much more processing cost. */
         // const frozenState = this._useFreeze ? deepFreeze(cloneDeep(newState)) : newState
 
         if (this._output) {
-          console.log('newState:', newState)
+          console.log('newState:', state)
         }
 
         // if (this._ngZone) {
@@ -149,8 +149,16 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
         //   this._provider$.next(frozenState)
         // }
 
-        this.dispatchReduxStore(newState)
-        this.effectAfterReduced(newState)
+        const key = state[latestUpdatedKey]
+        const value = state[key]
+
+        this._reduxStore.dispatch({
+          type: key,
+          value,
+          state
+        })
+
+        this.effectAfterReduced(state)
       })
 
 
@@ -189,13 +197,6 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
       this.initialState,
       middleware,
     )
-  }
-
-
-  private dispatchReduxStore(state: T): void {
-    const key = state[latestUpdatedKey]
-    const value = state[key]
-    this._reduxStore.dispatch({ type: key, value, state })
   }
 
 
