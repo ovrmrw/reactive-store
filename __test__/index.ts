@@ -76,7 +76,7 @@ store.setter(KEY.increment, (p) => ({ counter: p.counter - 1 }))
   .then(() => store.setter(KEY.timestamp, new Date().getTime()))
 
 
-setTimeout(() => {
+setImmediate(() => {
   assert(value === 0)
   assert(typeof timestamp === 'number' && timestamp > 0)
   assert(store.initialState.increment.counter === 0)
