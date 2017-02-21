@@ -2,7 +2,7 @@ require('setimmediate')
 const asap = require('asap') as (func: Function) => void
 const cloneDeep = require('lodash.clonedeep') as <T>(obj: T) => T
 
-import { createStore, Store, GenericStoreEnhancer } from 'redux'
+import { createStore, Store, GenericStoreEnhancer, Middleware, applyMiddleware } from 'redux'
 import { Observable } from 'rxjs/Observable'
 import { Subject } from 'rxjs/Subject'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
@@ -24,6 +24,7 @@ import './add/operator/all'
 export const latestUpdatedKey = '__latest__'
 
 
+
 export class ReactiveStore<T> implements IReactiveStore<T> {
   private _dispatcher$ = new Subject<Action>()
   private _provider$: BehaviorSubject<T | RecursiveReadonly<T>>
@@ -34,8 +35,8 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
   private _ngZone: any // (NgZone | null) for Angular 2+
   private _testing: boolean
   private _useFreeze: boolean
-  private _useRedux: boolean
-  private _reduxMiddleware: GenericStoreEnhancer | undefined
+  private _reduxApplyMiddleware: GenericStoreEnhancer | undefined
+  private _reduxMiddlewares: Middleware[]
 
   private _initialState: T
 
@@ -50,15 +51,15 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
     this._ngZone = o.ngZone && 'run' in o.ngZone ? o.ngZone : null
     this._testing = o.testing || false
     this._useFreeze = o.useFreeze || false
-    this._useRedux = o.useRedux || o.reduxMiddleware ? true : false
-    this._reduxMiddleware = o.reduxMiddleware || undefined
+    this._reduxApplyMiddleware = o.reduxApplyMiddleware || undefined
+    this._reduxMiddlewares = o.reduxMiddlewares || []
 
     const state: T = initialState || {}
     this._initialState = cloneDeep(state)
     this._provider$ = new BehaviorSubject<T>(cloneDeep(state))
+    this.createReduxStore()
     this.createStore()
     this.applyEffectors()
-    this.createReduxStore()
   }
 
 
@@ -134,23 +135,37 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
     reduced$
       .subscribe(newState => {
         /* useFreeze option takes much more processing cost. */
-        const frozenState = this._useFreeze ? deepFreeze(cloneDeep(newState)) : newState
+        // const frozenState = this._useFreeze ? deepFreeze(cloneDeep(newState)) : newState
 
         if (this._output) {
-          console.log('newState:', frozenState)
+          console.log('newState:', newState)
         }
 
-        if (this._ngZone) {
-          this._ngZone.run(() => { // for Angular 2+
-            this._provider$.next(frozenState)
-          })
-        } else {
-          this._provider$.next(frozenState)
-        }
+        // if (this._ngZone) {
+        //   this._ngZone.run(() => { // for Angular 2+
+        //     this._provider$.next(frozenState)
+        //   })
+        // } else {
+        //   this._provider$.next(frozenState)
+        // }
 
-        this.effectAfterReduced(newState)
         this.dispatchReduxStore(newState)
+        this.effectAfterReduced(newState)
       })
+
+
+    this._reduxStore.subscribe(() => {
+      const state = this._reduxStore.getState()
+      const frozenState = this._useFreeze ? deepFreeze(cloneDeep(state)) : state
+
+      if (this._ngZone) {
+        this._ngZone.run(() => { // for Angular 2+
+          this._provider$.next(frozenState)
+        })
+      } else {
+        this._provider$.next(frozenState)
+      }
+    })
   }
 
 
@@ -165,23 +180,24 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
 
 
   private createReduxStore(): void {
-    if (this._useRedux) {
-      this._reduxStore = createStore(
-        () => this.currentState,
-        this.currentState,
-        this._reduxMiddleware
-      )
-    }
+    const middleware = this._reduxApplyMiddleware ?
+      this._reduxApplyMiddleware :
+      applyMiddleware(...this._reduxMiddlewares)
+
+    this._reduxStore = createStore(
+      (_, action) => action.state,
+      this.initialState,
+      middleware,
+    )
   }
 
 
   private dispatchReduxStore(state: T): void {
-    if (this._useRedux && this._reduxStore) {
-      const key = state[latestUpdatedKey]
-      const value = state[key]
-      this._reduxStore.dispatch({ type: key, payload: value })
-    }
+    const key = state[latestUpdatedKey]
+    const value = state[key]
+    this._reduxStore.dispatch({ type: key, value, state })
   }
+
 
 
   /**

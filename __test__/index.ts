@@ -1,6 +1,5 @@
 import * as assert from 'assert'
 import { Observable } from 'rxjs/Observable'
-import { applyMiddleware } from 'redux'
 import * as createLogger from 'redux-logger'
 
 import { getReactiveStoreAsSingleton, getObjectKeys, LoopType } from '../src'
@@ -28,7 +27,7 @@ const KEY = getObjectKeys(initialState)
 const store = getReactiveStoreAsSingleton(initialState, {
   output: true, // DEFAULT: false
   useFreeze: true, // DEFAULT: false
-  // reduxMiddleware: applyMiddleware(createLogger()), // DEFAULT: undefined
+  // reduxMiddlewares: [createLogger()], // DEFAULT: undefined  
 })
 
 
@@ -77,7 +76,7 @@ store.setter(KEY.increment, (p) => ({ counter: p.counter - 1 }))
   .then(() => store.setter(KEY.timestamp, new Date().getTime()))
 
 
-setImmediate(() => {
+setTimeout(() => {
   assert(value === 0)
   assert(typeof timestamp === 'number' && timestamp > 0)
   assert(store.initialState.increment.counter === 0)

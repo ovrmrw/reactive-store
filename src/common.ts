@@ -87,8 +87,8 @@ export interface StoreOptions {
   ngZone?: any, // NgZone for Angular 2+
   testing?: boolean,
   useFreeze?: boolean,
-  useRedux?: boolean,
-  reduxMiddleware?: GenericStoreEnhancer,
+  reduxApplyMiddleware?: GenericStoreEnhancer,
+  reduxMiddlewares?: Middleware[],
 }
 
 
