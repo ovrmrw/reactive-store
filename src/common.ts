@@ -2,6 +2,8 @@ import { Observable } from 'rxjs/Observable'
 import { Subject } from 'rxjs/Subject'
 import { Middleware, GenericStoreEnhancer } from 'redux'
 
+export { Middleware, GenericStoreEnhancer }
+
 
 export interface Action {
   key: string,
