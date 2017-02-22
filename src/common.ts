@@ -91,7 +91,7 @@ export enum LoopType {
 
 export interface StoreOptions {
   concurrent?: number,
-  output?: boolean,
+  output?: boolean, // use just for testing
   loopType?: number,
   ngZone?: any, // NgZone for Angular 2+
   testing?: boolean,

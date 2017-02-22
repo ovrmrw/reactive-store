@@ -1,5 +1,5 @@
 # ovrmrw-reactive-store
-Most Simple Reactive Store using RxJS by @ovrmrw
+Most Simple Reactive Store using RxJS
 
 ---
 
@@ -14,6 +14,9 @@ But writing Actions, ActionCreators and Reducers for small apps is exaggerated a
 That is why that I wrote a Simple Store.
 
 In web apps world, we have to consider all events as async, so Reactive Concept is best match to that.
+
+This store is a key-value reactive store based on RxJS, and **Redux is used for storing states** in the Observable world.
+So you can use any Redux Middleware as you like, for example `redux-logger` and so on.
 
 To handle **states, time flow and events** easily, Simple Reactive Store (using RxJS) was born.
 
@@ -80,13 +83,17 @@ const KEY = {
 Generate a store instance by `getReactiveStoreAsSingleton` method with `initialState` and some options.
 
 ```
+import * as logger from 'redux-logger'
+
 const store = getReactiveStoreAsSingleton(initialState, {
-  output: true, // DEFAULT: false ... whether to output states logs.
   useFreeze: true, // DEFAULT: false ... whether to freeze states which components will get.
+  reduxMiddlewares: [logger()], // In this case, Store uses a Redux Middleware for logger.
 })
 ```
 
-Set a value to the states.
+Due to the `reduxMiddlewares` option, you can use any Redux Middleware.
+
+Next, set a value to the states.
 
 ```
 store.setter(KEY.increment, (p) => ({counter: p.counter + 1}))
