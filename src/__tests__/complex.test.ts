@@ -56,7 +56,7 @@ describe('Complex test for concurrent: 1', () => {
 
   it('several updates', async () => {
     const promises = [
-      store.setter(KEY.array, Observable.of((p) => [...p, 3]).delay(30)),
+      store.setter(KEY.array, Observable.of((p) => [...p, 3]).delay(20)),
       store.setter(KEY.array, Observable.of((p) => [...p, 4]).delay(10)),
       store.setter(KEY.array, Observable.of((p) => [...p, 5])),
       store.setter(KEY.array, (p) => [...p, 6]),
@@ -86,7 +86,7 @@ describe('Complex test for concurrent: Number.POSITIVE_INFINITY', () => {
 
   it('several updates', async () => {
     const promises = [
-      store.setter(KEY.array, Observable.of((p) => [...p, 3]).delay(30), { desc: 'this is final action' }),
+      store.setter(KEY.array, Observable.of((p) => [...p, 3]).delay(20), { desc: 'this is final action' }),
       store.setter(KEY.array, Observable.of((p) => [...p, 4]).delay(10)),
       store.setter(KEY.array, Observable.of((p) => [...p, 5])),
       store.setter(KEY.array, (p) => [...p, 6]),

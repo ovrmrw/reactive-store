@@ -15,7 +15,7 @@ import 'rxjs/add/operator/map'
 import 'rxjs/add/operator/mapTo'
 import 'rxjs/add/operator/scan'
 import 'rxjs/add/operator/toPromise'
-import 'rxjs/add/operator/do'
+// import 'rxjs/add/operator/do'
 
 import { Action, Next, ValueOrResolver, PartialValueOrResolver, RecursiveReadonly, LoopType, deepFreeze } from './common'
 import { StoreOptions, ActionOptions } from './common'
@@ -89,10 +89,9 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
           if (action.value instanceof Promise || action.value instanceof Observable) {
             const id = new Date().getTime()
             const description = action.options.desc ? action.options.desc + ': ' + action.key : action.key
-            this._reduxStore.dispatch({ type: description + '#AsyncStart ' + id })
+            // this._reduxStore.dispatch({ type: description + '#AsyncStart ' + id }) // if dispatch here, tick timing will be crushed.
             return Observable.from(action.value)
               .map(value => Object.assign(action, { value }) as Action)
-              .do(() => this._reduxStore.dispatch({ type: description + '#AsyncEnd ' + id }))
           } else {
             return Observable.of(action)
           }
@@ -173,7 +172,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
 
     this._reduxStore.subscribe(() => {
       const state = this._reduxStore.getState()
-      if (state === void 0) { return } // don't update provider$ when state is undefined.
+      if (state === undefined) { return } // don't update provider$ when state is undefined.
 
       const frozenState = this._useFreeze ? deepFreeze(cloneDeep(state)) : state
 
@@ -204,7 +203,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
       applyMiddleware(...this._reduxMiddlewares)
 
     this._reduxStore = createStore(
-      (_, action) => action.state ? action.state : void 0,
+      (_, action) => action.state,
       this.initialState,
       middleware,
     )
