@@ -69,7 +69,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
   private createStore(): void {
     const queue$ =
       this._dispatcher$
-        .mergeMap(action => { // execute outer callback.
+        .concatMap(action => { // execute outer callback.
           if (action.value instanceof Function) {
             return this.getter().take(1)
               .map(state => {
