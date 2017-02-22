@@ -35,9 +35,6 @@ describe('Complex test for concurrent: 1', () => {
   beforeEach(() => {
     store = new ReactiveStore(initialState, {
       concurrent: 1,
-      // output: true,
-      // useFreeze: true,
-      // reduxMiddlewares: [createLogger()] as Middleware[],
     })
   })
 
@@ -77,8 +74,6 @@ describe('Complex test for concurrent: Number.POSITIVE_INFINITY', () => {
   beforeEach(() => {
     store = new ReactiveStore(initialState, {
       concurrent: Number.POSITIVE_INFINITY,
-      // output: true,
-      // useFreeze: true,
       reduxMiddlewares: [createLogger()] as Middleware[],
     })
   })

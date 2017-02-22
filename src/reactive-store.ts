@@ -2,7 +2,7 @@ require('setimmediate')
 const asap = require('asap') as (func: Function) => void
 const cloneDeep = require('lodash.clonedeep') as <T>(obj: T) => T
 
-import { createStore, Store, GenericStoreEnhancer, Middleware, applyMiddleware } from 'redux'
+import { createStore, Store, GenericStoreEnhancer, Middleware, applyMiddleware, compose } from 'redux'
 import { Observable } from 'rxjs/Observable'
 import { Subject } from 'rxjs/Subject'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
@@ -20,6 +20,7 @@ import 'rxjs/add/operator/toPromise'
 import { Action, Next, ValueOrResolver, PartialValueOrResolver, RecursiveReadonly, LoopType, deepFreeze } from './common'
 import { StoreOptions, ActionOptions } from './common'
 import { IReactiveStore } from './interfaces'
+import { simpleLogger } from './middlewares'
 
 import './add/operator/all'
 
@@ -97,7 +98,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
         }, this._concurrent)
 
 
-    const reduced$ =
+    const scanned$ =
       queue$
         .scan((state, action) => {
           let temp: any
@@ -138,25 +139,15 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
         }, cloneDeep(this._initialState) as T)
 
 
-    reduced$
+    scanned$
       .subscribe(state => {
-        /* useFreeze option takes much more processing cost. */
-        // const frozenState = this._useFreeze ? deepFreeze(cloneDeep(newState)) : newState
-
-        // if (this._ngZone) {
-        //   this._ngZone.run(() => { // for Angular 2+
-        //     this._provider$.next(frozenState)
-        //   })
-        // } else {
-        //   this._provider$.next(frozenState)
-        // }
-
         const key = state[latestUpdatedKey]
         const value = state[key]
         const description = 'KEY: ' + key + (state[descriptionKey] ? ' - ' + state[descriptionKey] : '')
 
         this._reduxStore.dispatch({
           type: description,
+          key,
           value,
           state
         })
@@ -165,24 +156,21 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
       })
 
 
-    this._reduxStore.subscribe(() => {
-      const state = this._reduxStore.getState()
-      if (state === undefined) { return } // don't update provider$ when state is undefined.
+    this._reduxStore
+      .subscribe(() => {
+        const state = this._reduxStore.getState()
+        if (state === undefined) { return } // don't update provider$ when state is undefined.
 
-      const frozenState = this._useFreeze ? deepFreeze(cloneDeep(state)) : state
+        const frozenState = this._useFreeze ? deepFreeze(cloneDeep(state)) : state
 
-      if (this._output) {
-        console.log('newState:', frozenState)
-      }
-
-      if (this._ngZone) {
-        this._ngZone.run(() => { // for Angular 2+
+        if (this._ngZone) {
+          this._ngZone.run(() => { // for Angular 2+
+            this._provider$.next(frozenState)
+          })
+        } else {
           this._provider$.next(frozenState)
-        })
-      } else {
-        this._provider$.next(frozenState)
-      }
-    })
+        }
+      })
   }
 
 
@@ -202,9 +190,15 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
       applyMiddleware(...this._reduxMiddlewares)
 
     this._reduxStore = createStore(
-      (_, action) => action.state,
+      (state, action) => {
+        state = { ...action.state }
+        return state
+      },
       this.initialState,
-      middleware,
+      compose(
+        middleware,
+        this._output ? applyMiddleware(simpleLogger) : applyMiddleware(),
+      )
     )
   }
 
