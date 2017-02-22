@@ -190,7 +190,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
       applyMiddleware(...this._reduxMiddlewares)
 
     this._reduxStore = createStore(
-      (state, action) => state = { ...action.state },
+      (state, action) => state = { ...action.state }, // reducer
       this.initialState,
       compose(
         middleware,
