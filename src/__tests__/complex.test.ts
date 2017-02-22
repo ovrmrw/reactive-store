@@ -1,10 +1,9 @@
-import { applyMiddleware } from 'redux'
 import * as createLogger from 'redux-logger'
 import { Observable } from 'rxjs/Observable'
 import 'rxjs/add/observable/of'
 import 'rxjs/add/operator/delay'
 
-import { ReactiveStore, getReactiveStoreAsSingleton, getObjectKeys, LoopType } from '../index'
+import { ReactiveStore, getReactiveStoreAsSingleton, getObjectKeys, LoopType, Middleware } from '../index'
 
 
 interface AppState {
@@ -38,7 +37,7 @@ describe('Complex test for concurrent: 1', () => {
       concurrent: 1,
       // output: true,
       // useFreeze: true,
-      // reduxMiddleware: applyMiddleware(createLogger()),
+      reduxMiddlewares: [createLogger()] as Middleware[],
     })
   })
 
@@ -57,7 +56,7 @@ describe('Complex test for concurrent: 1', () => {
 
   it('several updates', async () => {
     const promises = [
-      store.setter(KEY.array, Observable.of((p) => [...p, 3]).delay(20)),
+      store.setter(KEY.array, Observable.of((p) => [...p, 3]).delay(30)),
       store.setter(KEY.array, Observable.of((p) => [...p, 4]).delay(10)),
       store.setter(KEY.array, Observable.of((p) => [...p, 5])),
       store.setter(KEY.array, (p) => [...p, 6]),
@@ -80,13 +79,14 @@ describe('Complex test for concurrent: Number.POSITIVE_INFINITY', () => {
       concurrent: Number.POSITIVE_INFINITY,
       // output: true,
       // useFreeze: true,
+      reduxMiddlewares: [createLogger()] as Middleware[],
     })
   })
 
 
   it('several updates', async () => {
     const promises = [
-      store.setter(KEY.array, Observable.of((p) => [...p, 3]).delay(20)),
+      store.setter(KEY.array, Observable.of((p) => [...p, 3]).delay(30), { desc: 'this is final action' }),
       store.setter(KEY.array, Observable.of((p) => [...p, 4]).delay(10)),
       store.setter(KEY.array, Observable.of((p) => [...p, 5])),
       store.setter(KEY.array, (p) => [...p, 6]),

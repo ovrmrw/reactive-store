@@ -9,6 +9,12 @@ export interface Action {
   key: string,
   value: any,
   subject: Subject<any>,
+  options: ActionOptions,
+}
+
+
+export interface ActionOptions {
+  desc?: string, // description
 }
 
 

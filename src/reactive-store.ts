@@ -15,13 +15,16 @@ import 'rxjs/add/operator/map'
 import 'rxjs/add/operator/mapTo'
 import 'rxjs/add/operator/scan'
 import 'rxjs/add/operator/toPromise'
+import 'rxjs/add/operator/do'
 
-import { Action, Next, ValueOrResolver, PartialValueOrResolver, RecursiveReadonly, LoopType, StoreOptions, deepFreeze } from './common'
+import { Action, Next, ValueOrResolver, PartialValueOrResolver, RecursiveReadonly, LoopType, deepFreeze } from './common'
+import { StoreOptions, ActionOptions } from './common'
 import { IReactiveStore } from './interfaces'
 
 import './add/operator/all'
 
 export const latestUpdatedKey = '__latest__'
+const descriptionKey = '__description__'
 
 
 
@@ -84,8 +87,12 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
         })
         .mergeMap(action => { // resolve async(Promise or Observable).
           if (action.value instanceof Promise || action.value instanceof Observable) {
+            const id = new Date().getTime()
+            const description = action.options.desc ? action.options.desc + ': ' + action.key : action.key
+            this._reduxStore.dispatch({ type: description + '#AsyncStart ' + id })
             return Observable.from(action.value)
               .map(value => Object.assign(action, { value }) as Action)
+              .do(() => this._reduxStore.dispatch({ type: description + '#AsyncEnd ' + id }))
           } else {
             return Observable.of(action)
           }
@@ -111,6 +118,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
             state[action.key] = temp
           }
           state[latestUpdatedKey] = action.key
+          state[descriptionKey] = action.options.desc
 
           // const newState: T = Object.assign({}, state)
           const newState: T = { ...state as any }
@@ -151,9 +159,10 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
 
         const key = state[latestUpdatedKey]
         const value = state[key]
+        const description = state[descriptionKey] ? state[descriptionKey] + ': ' + key : key
 
         this._reduxStore.dispatch({
-          type: key,
+          type: description,
           value,
           state
         })
@@ -164,6 +173,8 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
 
     this._reduxStore.subscribe(() => {
       const state = this._reduxStore.getState()
+      if (state === void 0) { return } // don't update provider$ when state is undefined.
+
       const frozenState = this._useFreeze ? deepFreeze(cloneDeep(state)) : state
 
       if (this._ngZone) {
@@ -193,7 +204,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
       applyMiddleware(...this._reduxMiddlewares)
 
     this._reduxStore = createStore(
-      (_, action) => action.state,
+      (_, action) => action.state ? action.state : void 0,
       this.initialState,
       middleware,
     )
@@ -204,9 +215,9 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
   /**
    * To set a new value to the specified key.
    */
-  setter<K extends keyof T>(key: K, value: ValueOrResolver<T, K>): Promise<void | Next<T, K>> {
+  setter<K extends keyof T>(key: K, value: ValueOrResolver<T, K>, options: ActionOptions = {}): Promise<void | Next<T, K>> {
     const subject = new Subject<Next<T, K> | RecursiveReadonly<Next<T, K>>>()
-    this._dispatcher$.next({ key, value, subject })
+    this._dispatcher$.next({ key, value, subject, options: initActionOptions(options) })
     return subject.take(1)
       .mapTo(void 0) // experimental
       .toPromise()
@@ -216,9 +227,9 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
   /**
    * To set a new partial value to the specified key. Partial value will be merged.
    */
-  setterPartial<K extends keyof T>(key: K, value: PartialValueOrResolver<T, K>): Promise<void | Next<T, K>> {
+  setterPartial<K extends keyof T>(key: K, value: PartialValueOrResolver<T, K>, options: ActionOptions = {}): Promise<void | Next<T, K>> {
     const subject = new Subject<Next<T, K> | RecursiveReadonly<Next<T, K>>>()
-    this._dispatcher$.next({ key, value, subject })
+    this._dispatcher$.next({ key, value, subject, options: initActionOptions(options) })
     return subject.take(1)
       .mapTo(void 0) // experimental
       .toPromise()
@@ -228,10 +239,10 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
   /**
    * To reset the value under the specified key.
    */
-  resetter<K extends keyof T>(key: K): Promise<void | Next<T, K>> {
+  resetter<K extends keyof T>(key: K, options: ActionOptions = {}): Promise<void | Next<T, K>> {
     const subject = new Subject<Next<T, K> | RecursiveReadonly<Next<T, K>>>()
     const value = this._initialState[key]
-    this._dispatcher$.next({ key, value, subject })
+    this._dispatcher$.next({ key, value, subject, options: initActionOptions(options) })
     return subject.take(1)
       .mapTo(void 0) // experimental
       .toPromise()
@@ -307,4 +318,12 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
     return frozenState as T
   }
 
+}
+
+
+
+///////////////////////////////////// Helpers
+function initActionOptions(options: ActionOptions): ActionOptions {
+  options.desc = options.desc ? options.desc : ''
+  return options
 }
