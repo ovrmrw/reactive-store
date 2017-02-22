@@ -37,7 +37,7 @@ describe('Complex test for concurrent: 1', () => {
       concurrent: 1,
       // output: true,
       // useFreeze: true,
-      reduxMiddlewares: [createLogger()] as Middleware[],
+      // reduxMiddlewares: [createLogger()] as Middleware[],
     })
   })
 

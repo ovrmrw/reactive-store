@@ -143,10 +143,6 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
         /* useFreeze option takes much more processing cost. */
         // const frozenState = this._useFreeze ? deepFreeze(cloneDeep(newState)) : newState
 
-        if (this._output) {
-          console.log('newState:', state)
-        }
-
         // if (this._ngZone) {
         //   this._ngZone.run(() => { // for Angular 2+
         //     this._provider$.next(frozenState)
@@ -174,6 +170,10 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
       if (state === undefined) { return } // don't update provider$ when state is undefined.
 
       const frozenState = this._useFreeze ? deepFreeze(cloneDeep(state)) : state
+
+      if (this._output) {
+        console.log('newState:', frozenState)
+      }
 
       if (this._ngZone) {
         this._ngZone.run(() => { // for Angular 2+
