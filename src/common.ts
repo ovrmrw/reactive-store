@@ -18,6 +18,7 @@ export interface ActionOptions {
 }
 
 
+// DEPRECATED
 export interface Next<T, K extends keyof T> {
   state: T,
   value: T[K],

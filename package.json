@@ -1,6 +1,6 @@
 {
   "name": "ovrmrw-reactive-store",
-  "version": "0.0.46",
+  "version": "0.0.47",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -53,7 +53,7 @@
     "asap": "^2.0.5",
     "lodash.clonedeep": "^4.5.0",
     "redux": "^3.6.0",
-    "rxjs": "^5.1.1",
+    "rxjs": "^5.2.0",
     "setimmediate": "^1.0.5"
   },
   "peerDependencies": {
