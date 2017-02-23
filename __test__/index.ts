@@ -27,6 +27,7 @@ const KEY = createObjectKeys(initialState)
 const store = createReactiveStoreAsSingleton(initialState, {
   useFreeze: true, // DEFAULT: false
   reduxMiddlewares: [simpleLogger] as Middleware[], // DEFAULT: undefined
+  useReduxDevToolsExtension: true, // DEFAULT: false ... works only for browsers.
 })
 
 

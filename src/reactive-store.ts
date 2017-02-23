@@ -197,13 +197,13 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
       (state, action) => state = { ...action.state }, // reducer
       this.initialState,
       compose(
-        this._useReduxDevToolsExtension ?
-          window[REDUX_DEVTOOLS_EXTENSION] && window[REDUX_DEVTOOLS_EXTENSION]() as GenericStoreEnhancer :
-          applyMiddleware(),
+        middleware,
         this._output ?
           applyMiddleware(simpleLogger) :
           applyMiddleware(),
-        middleware,
+        this._useReduxDevToolsExtension && ['window'] && ['window'][REDUX_DEVTOOLS_EXTENSION] ?
+          ['window'][REDUX_DEVTOOLS_EXTENSION]() as GenericStoreEnhancer :
+          applyMiddleware(),
       )
     )
   }
