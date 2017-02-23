@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs/Observable'
 import { Subject } from 'rxjs/Subject'
-import { Middleware, GenericStoreEnhancer } from 'redux'
+import { Middleware, GenericStoreEnhancer, Store, Dispatch, Action } from 'redux'
 
 export { Middleware, GenericStoreEnhancer }
 
@@ -67,11 +67,20 @@ export function mergeObject<T>(obj: T, partials: Partial<{[P in keyof T]: T[P]}>
 export type ObjectKeys<T> = {[P in keyof T]: P}
 
 
-export function getObjectKeys<T>(state: T): ObjectKeys<T> {
+/**
+ * create and get ObjectKeys
+ */
+export function createObjectKeys<T>(state: T): ObjectKeys<T> {
   return Object.keys(state).reduce((p, key) => {
     return { ...p, ...{ [key]: key } }
   }, {}) as any
 }
+
+
+/**
+ * DEPRECATED: alias for createObjectKeys
+ */
+export const getObjectKeys = createObjectKeys
 
 
 export type ObjectKey<T, K extends keyof T> = K
@@ -100,6 +109,12 @@ export interface StoreOptions {
   reduxMiddlewares?: Middleware[],
   reduxDevtoolsExtension?: boolean,
 }
+
+
+export interface MiddlewareInterface<T> {
+  (store: Store<T>): (next: Dispatch<T>) => (action: Action) => Action
+}
+
 
 
 /**

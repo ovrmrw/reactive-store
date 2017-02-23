@@ -1,20 +1,11 @@
-import { Store, Dispatch, Action } from 'redux'
+const cloneDeep = require('lodash.clonedeep') as <T>(obj: T) => T
 
+import { MiddlewareInterface } from './common'
 
 
 export const simpleLogger: MiddlewareInterface<any> =
   store => next => action => {
     const result = next(action)
-    const state = store.getState()
-    if (state !== undefined) {
-      console.log('newState:', store.getState())
-    }
+    console.log('newState:', cloneDeep(store.getState()))
     return result
   }
-
-
-
-
-export interface MiddlewareInterface<T> {
-  (store: Store<T>): (next: Dispatch<T>) => (action: Action) => Action
-}

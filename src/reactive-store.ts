@@ -193,8 +193,8 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
       (state, action) => state = { ...action.state }, // reducer
       this.initialState,
       compose(
-        middleware,
         this._output ? applyMiddleware(simpleLogger) : applyMiddleware(),
+        middleware,
       )
     )
   }

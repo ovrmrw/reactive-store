@@ -3,7 +3,7 @@ import { Observable } from 'rxjs/Observable'
 import 'rxjs/add/observable/of'
 import 'rxjs/add/operator/delay'
 
-import { ReactiveStore, getReactiveStoreAsSingleton, getObjectKeys, LoopType, Middleware } from '../index'
+import { ReactiveStore, createReactiveStoreAsSingleton, createObjectKeys, LoopType, Middleware } from '../index'
 
 
 interface AppState {
@@ -24,7 +24,7 @@ const initialState: AppState = {
   array: [1, 2],
 }
 
-const KEY = getObjectKeys(initialState)
+const KEY = createObjectKeys(initialState)
 
 
 
