@@ -86,8 +86,9 @@ Generate a store instance by `getReactiveStoreAsSingleton` method with `initialS
 import * as logger from 'redux-logger'
 
 const store = getReactiveStoreAsSingleton(initialState, {
-  useFreeze: true, // DEFAULT: false ... whether to freeze states which components will get.
+  useFreeze: true, // DEFAULT: false ... whether to freeze State object before be sent to getter function.
   reduxMiddlewares: [logger()], // In this case, Store uses a Redux Middleware for logger.
+  useReduxDevToolsExtension: true, // DEFAULT: false ... whether to enable Redux DevTools Extension.
 })
 ```
 

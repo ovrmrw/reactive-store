@@ -107,7 +107,7 @@ export interface StoreOptions {
   useFreeze?: boolean,
   reduxApplyMiddleware?: GenericStoreEnhancer,
   reduxMiddlewares?: Middleware[],
-  reduxDevtoolsExtension?: boolean,
+  useReduxDevToolsExtension?: boolean,
 }
 
 

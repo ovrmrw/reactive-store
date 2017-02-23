@@ -24,6 +24,8 @@ import { simpleLogger } from './middlewares'
 
 import './add/operator/all'
 
+const REDUX_DEVTOOLS_EXTENSION = '__REDUX_DEVTOOLS_EXTENSION__'
+
 export const latestUpdatedKey = '__latest__'
 const descriptionKey = '__description__'
 
@@ -41,6 +43,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
   private _useFreeze: boolean
   private _reduxApplyMiddleware: GenericStoreEnhancer | undefined
   private _reduxMiddlewares: Middleware[]
+  private _useReduxDevToolsExtension: boolean
 
   private _initialState: T
 
@@ -57,6 +60,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
     this._useFreeze = o.useFreeze || false
     this._reduxApplyMiddleware = o.reduxApplyMiddleware || undefined
     this._reduxMiddlewares = o.reduxMiddlewares || []
+    this._useReduxDevToolsExtension = o.useReduxDevToolsExtension || false
 
     const state: T = initialState || {}
     this._initialState = cloneDeep(state)
@@ -193,7 +197,12 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
       (state, action) => state = { ...action.state }, // reducer
       this.initialState,
       compose(
-        this._output ? applyMiddleware(simpleLogger) : applyMiddleware(),
+        this._useReduxDevToolsExtension ?
+          window[REDUX_DEVTOOLS_EXTENSION] && window[REDUX_DEVTOOLS_EXTENSION]() as GenericStoreEnhancer :
+          applyMiddleware(),
+        this._output ?
+          applyMiddleware(simpleLogger) :
+          applyMiddleware(),
         middleware,
       )
     )
