@@ -193,6 +193,15 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
       this._reduxApplyMiddleware :
       applyMiddleware(...this._reduxMiddlewares)
 
+    let reduxDevToolsExtension: GenericStoreEnhancer = applyMiddleware()
+    try {
+      this._useReduxDevToolsExtension && window && window[REDUX_DEVTOOLS_EXTENSION] ?
+        reduxDevToolsExtension = window[REDUX_DEVTOOLS_EXTENSION]() as GenericStoreEnhancer :
+        () => { }
+    } catch (err) {
+      console.error(err.message) // if running on Node.js this will show "ReferenceError: window is not defined"
+    }
+
     this._reduxStore = createStore(
       (state, action) => state = { ...action.state }, // reducer
       this.initialState,
@@ -201,9 +210,7 @@ export class ReactiveStore<T> implements IReactiveStore<T> {
         this._output ?
           applyMiddleware(simpleLogger) :
           applyMiddleware(),
-        this._useReduxDevToolsExtension && ['window'] && ['window'][REDUX_DEVTOOLS_EXTENSION] ?
-          ['window'][REDUX_DEVTOOLS_EXTENSION]() as GenericStoreEnhancer :
-          applyMiddleware(),
+        reduxDevToolsExtension,
       )
     )
   }
